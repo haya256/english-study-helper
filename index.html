@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="stylesheet" href="style.css?v=2026100401">
+  <link rel="stylesheet" href="style.css?v=2026100402">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -65,7 +65,7 @@
           <li>アドレスバーの「ぁあ」→「日本語に翻訳」</li>
           <li>日本語になったら「← Back」で戻る → 各文の訳の欄に入っています</li>
         </ol>
-        <p class="hint">自動で入らない文は、訳の欄に直接入力できます。英文を長押しで選択 →「翻訳」でも1文ずつ訳を確認できます。</p>
+        <p class="hint">自動で入らない文は、各文の ✎ から訳を入力できます。英文を長押しで選択 →「翻訳」でも1文ずつ訳を確認できます。</p>
       </div>
     </section>
 
@@ -116,13 +116,20 @@
         <p class="diff ref" lang="en"></p>
         <p class="heard"></p>
       </div>
-      <textarea class="ja" rows="2" placeholder="訳（自動で入る／自分で入力）" lang="ja"></textarea>
+      <div class="ja-view" lang="ja">
+        <p class="ja-text"></p>
+        <button class="btn-ja-edit" aria-label="訳を編集">✎</button>
+      </div>
+      <div class="ja-edit" hidden lang="ja">
+        <textarea class="ja" rows="2" placeholder="訳を入力" lang="ja"></textarea>
+        <button class="btn-ja-done">完了</button>
+      </div>
     </li>
   </template>
 
-  <script src="store.js?v=2026100401"></script>
-  <script src="splitter.js?v=2026100401"></script>
-  <script src="compare.js?v=2026100401"></script>
-  <script src="app.js?v=2026100401"></script>
+  <script src="store.js?v=2026100402"></script>
+  <script src="splitter.js?v=2026100402"></script>
+  <script src="compare.js?v=2026100402"></script>
+  <script src="app.js?v=2026100402"></script>
 </body>
 </html>

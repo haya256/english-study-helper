@@ -25,7 +25,7 @@
     renderSentences();
     if (state.sentences.length) {
       $('#input-panel').open = false;
-      $('#sentences-section').scrollIntoView({ behavior: 'smooth' });
+      $('#translate-panel').scrollIntoView({ behavior: 'smooth' });
     }
   });
 

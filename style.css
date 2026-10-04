@@ -129,6 +129,16 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .w.extra { color: var(--muted); text-decoration: line-through; }
 
 #translate-panel h2 { font-size: 17px; margin: 0; }
+#translate-panel .row { align-items: center; }
+.info-button {
+  width: 32px; min-height: 32px; height: 32px; padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic; font-weight: 700; font-size: 17px;
+}
+.info-button[aria-expanded="true"] { background: var(--accent); color: var(--accent-text); }
 .steps { padding-left: 1.4em; }
 a.button { text-decoration: none; }
 a.button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }

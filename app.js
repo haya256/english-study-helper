@@ -53,6 +53,13 @@
     if (photoUrl) { URL.revokeObjectURL(photoUrl); photoUrl = null; }
   });
 
+  // 翻訳のしかたは i ボタンで開閉する
+  $('#btn-translate-help').addEventListener('click', (e) => {
+    const help = $('#translate-help');
+    help.hidden = !help.hidden;
+    e.currentTarget.setAttribute('aria-expanded', String(!help.hidden));
+  });
+
   // ---------- 文のカード ----------
   const listEl = $('#sentences');
   const tpl = $('#tpl-sentence');

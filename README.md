@@ -1,4 +1,4 @@
-# English Study Helper
+# English Study Helper（セコいVer. たぶんSafari専用）
 
 iPhone の Safari で使う英語学習ページ。サーバーは使わず、データは端末の中（localStorage）にだけ保存します。外部の AI や API は使わず、iPhone に元からある機能だけで動きます。
 

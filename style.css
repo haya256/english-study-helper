@@ -56,6 +56,9 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
 }
 summary { font-weight: 600; cursor: pointer; padding: 2px 0; }
 .hint { color: var(--muted); font-size: 13px; margin: 8px 0; }
+.notes { font-size: 14px; margin: 8px 0 0; padding-left: 1.2em; }
+.notes li { margin-bottom: 6px; }
+.notes ul { padding-left: 1.2em; margin: 4px 0; }
 
 textarea, input[type="text"], select {
   width: 100%;

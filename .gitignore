@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Node（テスト実行用）
+node_modules/
+npm-debug.log*
+
+# エディタ
+.vscode/
+.idea/

@@ -114,6 +114,7 @@
         renderJa(li, s);
       });
       li.querySelector('.btn-speak').addEventListener('click', () => toggleSpeak(i));
+      li.querySelector('.btn-ja-speak').addEventListener('click', () => toggleSpeak(i, 'ja'));
       li.querySelector('.btn-mic').addEventListener('click', () => toggleRecognition(i));
       li.querySelector('.btn-type').addEventListener('click', () => {
         const box = li.querySelector('.type-box');
@@ -137,6 +138,7 @@
     p.textContent = text || '訳なし';
     p.classList.toggle('empty', !text);
     li.querySelector('.btn-ja-edit').textContent = text ? '✎' : '✎ 訳を入力';
+    li.querySelector('.btn-ja-speak').hidden = !text;
     li.querySelector('.ja-view').hidden = false;
     li.querySelector('.ja-edit').hidden = true;
   }
@@ -196,8 +198,9 @@
   }
 
   // ---------- 読み上げ ----------
+  // 英文（lang='en'）と訳（lang='ja'）を読み上げる。今読んでいるものは { i, lang } で持つ
   const synth = window.speechSynthesis;
-  let speakingIdx = null;
+  let speaking = null;
   let playAll = false;
 
   function englishVoices() {
@@ -210,50 +213,63 @@
       || voices.find((v) => /en[-_]US/i.test(v.lang))
       || voices[0] || null;
   }
+  function japaneseVoice() {
+    const voices = synth ? synth.getVoices().filter((v) => /^ja[-_]/i.test(v.lang)) : [];
+    return voices.find((v) => /kyoko/i.test(v.name)) || voices.find((v) => v.default) || voices[0] || null;
+  }
 
-  function markSpeaking(i, on) {
-    const li = cardAt(i);
+  function isSpeaking(i, lang) { return speaking && speaking.i === i && speaking.lang === lang; }
+
+  function markSpeaking(sp, on) {
+    const li = sp && cardAt(sp.i);
     if (!li) return;
-    li.classList.toggle('speaking', on);
-    li.querySelector('.btn-speak').classList.toggle('active', on);
+    if (sp.lang === 'en') li.classList.toggle('speaking', on);
+    li.querySelector(sp.lang === 'en' ? '.btn-speak' : '.btn-ja-speak').classList.toggle('active', on);
   }
 
   function stopSpeaking() {
     playAll = false;
-    if (speakingIdx != null) markSpeaking(speakingIdx, false);
-    speakingIdx = null;
+    markSpeaking(speaking, false);
+    speaking = null;
     if (synth) synth.cancel();
     $('#btn-play-all').textContent = '▶ 全部読む';
   }
 
-  function speak(i, onDone) {
+  function speak(i, onDone, lang = 'en') {
     if (!synth) { alert('この端末では読み上げが使えません'); return; }
     // 前の発話の onend が cancel() で呼ばれても続きを再生しないよう、先に null にする
-    if (speakingIdx != null) markSpeaking(speakingIdx, false);
-    speakingIdx = null;
+    markSpeaking(speaking, false);
+    speaking = null;
     // iOS では cancel() の直後に speak() すると無音になることがあるので、話している時だけ止める
     if (synth.speaking || synth.pending) synth.cancel();
-    const u = new SpeechSynthesisUtterance(state.sentences[i].en);
-    const v = currentVoice();
-    if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
-    u.rate = Number(state.settings.rate);
+    const s = state.sentences[i];
+    const u = new SpeechSynthesisUtterance(lang === 'en' ? s.en : s.ja);
+    if (lang === 'en') {
+      const v = currentVoice();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+      u.rate = Number(state.settings.rate);
+    } else {
+      const v = japaneseVoice();
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'ja-JP';
+    }
+    const me = { i, lang };
     u.onend = u.onerror = () => {
-      if (speakingIdx !== i) return;
-      markSpeaking(i, false);
-      speakingIdx = null;
+      if (speaking !== me) return;
+      markSpeaking(me, false);
+      speaking = null;
       if (onDone) onDone();
     };
-    speakingIdx = i;
-    markSpeaking(i, true);
+    speaking = me;
+    markSpeaking(me, true);
     synth.speak(u);
   }
 
-  function toggleSpeak(i) {
-    if (speakingIdx === i) { stopSpeaking(); return; }
+  function toggleSpeak(i, lang = 'en') {
+    if (isSpeaking(i, lang)) { stopSpeaking(); return; }
     stopRecognition();
     playAll = false;
     $('#btn-play-all').textContent = '▶ 全部読む';
-    speak(i);
+    speak(i, null, lang);
   }
 
   $('#btn-play-all').addEventListener('click', () => {

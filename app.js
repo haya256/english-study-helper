@@ -251,8 +251,13 @@
 
   // ---------- 発音チェック（音声認識） ----------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null;
-  let recIdx = null;
+  let rec = null;   // 聞き取り中のセッション { i, finish, abort }
+
+  // 話し終えてから判定までの待ち時間（設定で変更できる。0 は ■ を押すまで待つ）
+  const silenceMs = () => Number(state.settings.silenceSec) * 1000;
+  const FIRST_SILENCE_MS = 10000; // 最初に何も聞こえないまま待つ時間
+  const DONE_MS = 800;           // 文の最後まで言えたら、この時間待って判定する
+  const MAX_MS = 60000;
 
   function setMicButton(i, on) {
     const li = cardAt(i);
@@ -263,13 +268,12 @@
   }
 
   function stopRecognition() {
-    if (rec) { try { rec.abort(); } catch (e) { /* すでに止まっている */ } }
+    if (rec) rec.abort();
   }
 
   function toggleRecognition(i) {
     if (rec) {
-      const same = recIdx === i;
-      if (same) { rec.stop(); return; }
+      if (rec.i === i) { rec.finish(); return; }
       stopRecognition();
     }
     if (!SR) {
@@ -281,73 +285,132 @@
     startRecognition(i);
   }
 
+  // ブラウザは息継ぎ程度の間でも認識を終えてしまうことがあるので、
+  // こちらが「終わり」と決めるまでは認識を再開し、聞き取った内容をつなげていく
   function startRecognition(i) {
-    const r = new SR();
-    r.lang = 'en-US';
-    r.interimResults = true;
-    r.continuous = false;
-    r.maxAlternatives = 3;
-
-    let finals = [];   // 確定した部分ごとの候補 [[alt, alt, ...], ...]
+    const ref = state.sentences[i].en;
+    const committed = [];  // 確定した部分ごとの候補 [[alt, alt, ...], ...]（再開をまたいで保持）
+    let current = [];      // 今の認識インスタンスで確定した部分
     let interim = '';
     let errorText = '';
+    let finished = false;
+    let aborted = false;
+    let r = null;
     let silenceTimer = null;
-    const hardStop = setTimeout(() => r.stop(), 20000);
-    const bumpSilence = () => { clearTimeout(silenceTimer); silenceTimer = setTimeout(() => r.stop(), 2000); };
+    const hardStop = setTimeout(finish, MAX_MS);
 
-    r.onresult = (e) => {
+    const session = { i, finish, abort };
+    rec = session;
+
+    function transcript() {
+      return committed.concat(current.filter(Boolean)).map((alts) => alts[0]).concat(interim).join(' ').trim();
+    }
+    function waitSilence(ms) { clearTimeout(silenceTimer); silenceTimer = setTimeout(finish, ms); }
+    function clearTimers() { clearTimeout(silenceTimer); clearTimeout(hardStop); }
+    function commit() {
+      committed.push(...current.filter(Boolean));
+      if (interim.trim()) committed.push([interim]);
+      current = [];
       interim = '';
-      for (let k = e.resultIndex; k < e.results.length; k++) {
-        const res = e.results[k];
-        if (res.isFinal) finals[k] = Array.from(res).map((a) => a.transcript);
-        else interim += res[0].transcript;
-      }
-      const sofar = finals.filter(Boolean).map((alts) => alts[0]).join(' ') + ' ' + interim;
-      showMessage(i, '聞き取り中… ' + sofar.trim());
-      bumpSilence();
-    };
-    r.onerror = (e) => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        errorText = 'マイクか音声認識が許可されていません。「設定」アプリ → Safari → マイク、と「設定」→ Siri（音声入力）を確認してください。';
-      } else if (e.error === 'no-speech') {
-        errorText = '声が聞き取れませんでした。もう一度どうぞ。';
-      } else if (e.error !== 'aborted') {
-        errorText = '音声認識でエラーが起きました（' + e.error + '）。';
-      }
-    };
-    r.onend = () => {
-      clearTimeout(hardStop);
-      clearTimeout(silenceTimer);
-      if (rec === r) { rec = null; recIdx = null; }
+    }
+    function cleanup() {
+      clearTimers();
+      if (rec === session) rec = null;
       setMicButton(i, false);
-      // 候補が複数あれば、一番点数が高い組み合わせを採用する
-      const parts = finals.filter(Boolean);
-      if (interim) parts.push([interim]);
-      if (parts.length === 0) {
-        if (errorText) showMessage(i, errorText);
-        else if (cardAt(i)) cardAt(i).querySelector('.result').hidden = state.sentences[i].best == null;
+    }
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      clearTimers();
+      if (r) { try { r.stop(); } catch (e) { done(); } } else done();
+      // stop() の後に onend が来ない環境に備えて、少し待っても終わらなければ打ち切る
+      setTimeout(() => {
+        if (isDone || aborted) return;
+        try { r.abort(); } catch (e) { /* すでに止まっている */ }
+        commit();
+        done();
+      }, 2000);
+    }
+    function abort() {
+      if (aborted) return;
+      aborted = finished = true;
+      if (r) { try { r.abort(); } catch (e) { /* すでに止まっている */ } }
+      cleanup();
+    }
+
+    function spawn() {
+      r = new SR();
+      r.lang = 'en-US';
+      r.interimResults = true;
+      r.continuous = true;
+      r.maxAlternatives = 3;
+
+      r.onresult = (e) => {
+        interim = '';
+        for (let k = e.resultIndex; k < e.results.length; k++) {
+          const res = e.results[k];
+          if (res.isFinal) current[k] = Array.from(res).map((a) => a.transcript);
+          else interim += res[0].transcript;
+        }
+        const text = transcript();
+        if (!text) return;
+        showMessage(i, '聞き取り中… ' + text);
+        // 文の最後まで正しく言えていれば早めに判定する
+        if (Compare.compare(ref, text).score === 100) waitSilence(DONE_MS);
+        else if (silenceMs() > 0) waitSilence(silenceMs());
+        else clearTimeout(silenceTimer);
+      };
+      r.onerror = (e) => {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') {
+          errorText = 'マイクか音声認識が許可されていません。「設定」アプリ → Safari → マイク、と「設定」→ Siri（音声入力）を確認してください。';
+          finished = true;
+        } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+          errorText = '音声認識でエラーが起きました（' + e.error + '）。';
+          finished = true;
+        }
+      };
+      r.onend = () => {
+        commit();
+        if (aborted) return;
+        if (!finished) {
+          try { spawn(); r.start(); return; } catch (e) { finished = true; }
+        }
+        done();
+      };
+    }
+
+    let isDone = false;
+    function done() {
+      if (isDone) return;
+      isDone = true;
+      cleanup();
+      if (committed.length === 0) {
+        showMessage(i, errorText || '声が聞き取れませんでした。もう一度どうぞ。');
         return;
       }
-      const base = parts.map((alts) => alts[0]);
-      let best = Compare.compare(state.sentences[i].en, base.join(' '));
-      parts.forEach((alts, k) => {
+      // 候補が複数あれば、一番点数が高い組み合わせを採用する
+      const base = committed.map((alts) => alts[0]);
+      let best = Compare.compare(ref, base.join(' '));
+      committed.forEach((alts, k) => {
         alts.slice(1).forEach((alt) => {
           const trial = base.slice();
           trial[k] = alt;
-          const r2 = Compare.compare(state.sentences[i].en, trial.join(' '));
+          const r2 = Compare.compare(ref, trial.join(' '));
           if (r2.score > best.score) best = r2;
         });
       });
       showResult(i, best);
-    };
+    }
 
-    rec = r;
-    recIdx = i;
     setMicButton(i, true);
-    showMessage(i, '話してください…');
-    try { r.start(); } catch (e) {
-      rec = null; recIdx = null;
-      setMicButton(i, false);
+    showMessage(i, silenceMs() > 0
+      ? '話してください…（言い終えて少し黙るか、■ を押すと判定します）'
+      : '話してください…（言い終えたら ■ を押してください）');
+    if (silenceMs() > 0) waitSilence(FIRST_SILENCE_MS);
+    try { spawn(); r.start(); } catch (e) {
+      finished = true;
+      cleanup();
       showMessage(i, '音声認識を開始できませんでした。');
     }
   }
@@ -379,6 +442,10 @@
     renderVoices();
     synth.addEventListener('voiceschanged', renderVoices);
   }
+
+  const silenceEl = $('#silence');
+  silenceEl.value = String(state.settings.silenceSec);
+  silenceEl.addEventListener('change', () => { state.settings.silenceSec = Number(silenceEl.value); save(); });
 
   const modeEl = $('#translate-mode');
   modeEl.value = state.settings.translateMode;

@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="stylesheet" href="style.css?v=2026100402">
+  <link rel="stylesheet" href="style.css?v=2026100404">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -88,6 +88,14 @@
       <label class="field">声
         <select id="voice"></select>
       </label>
+      <label class="field">🎤 話し終わりの判定
+        <select id="silence">
+          <option value="3">3秒黙ったら判定</option>
+          <option value="5">5秒黙ったら判定</option>
+          <option value="8">8秒黙ったら判定</option>
+          <option value="0">■ を押すまで待つ</option>
+        </select>
+      </label>
       <label class="field">翻訳エリアの並べ方
         <select id="translate-mode">
           <option value="para">段落ごと（前後の文脈を使う）</option>
@@ -127,9 +135,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026100402"></script>
-  <script src="splitter.js?v=2026100402"></script>
-  <script src="compare.js?v=2026100402"></script>
-  <script src="app.js?v=2026100402"></script>
+  <script src="store.js?v=2026100404"></script>
+  <script src="splitter.js?v=2026100404"></script>
+  <script src="compare.js?v=2026100404"></script>
+  <script src="app.js?v=2026100404"></script>
 </body>
 </html>

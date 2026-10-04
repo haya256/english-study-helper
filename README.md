@@ -56,3 +56,5 @@ iPhone の Safari で使う英語学習ページ。サーバーは使わず、�
 node tests/test.js             # 文の分割と発音比較のテスト
 python3 -m http.server 8765    # http://localhost:8765/ で確認
 ```
+
+JS や CSS を変えたら、`index.html` と `translate.html` の `?v=` の数字を上げる。GitHub Pages はファイルを最大10分ブラウザに保存させるので、上げないと古いファイルが使われることがある。

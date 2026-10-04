@@ -73,6 +73,8 @@ textarea, input[type="text"], select {
   padding: 10px;
 }
 textarea { resize: vertical; }
+.source-count { margin: 4px 2px 0; font-size: 13px; color: var(--muted); text-align: right; }
+.source-count.over { color: var(--miss); font-weight: 600; }
 
 .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 button, .button {

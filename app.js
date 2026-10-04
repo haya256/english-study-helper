@@ -10,14 +10,33 @@
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
 
   // ---------- 入力と分割 ----------
+  // 長すぎる入力は、保存容量や画面の文の数で破綻しないよう、分割の前に止める
+  const MAX_CHARS = 20000;
+  const MAX_SENTENCES = 1000;
   const sourceEl = $('#source');
+  const countEl = $('#source-count');
   sourceEl.value = state.source;
-  sourceEl.addEventListener('input', () => { state.source = sourceEl.value; saveSoon(); });
+  sourceEl.addEventListener('input', () => { state.source = sourceEl.value; updateCount(); saveSoon(); });
+
+  function updateCount(message) {
+    const n = sourceEl.value.length;
+    const over = n > MAX_CHARS;
+    countEl.textContent = message || `${n.toLocaleString()} / ${MAX_CHARS.toLocaleString()} 文字` +
+      (over ? '（多すぎます。減らしてください）' : '');
+    countEl.classList.toggle('over', over || Boolean(message));
+  }
+  updateCount();
 
   $('#btn-split').addEventListener('click', () => {
+    if (sourceEl.value.length > MAX_CHARS) { updateCount(); sourceEl.focus(); return; }
+    const parts = Splitter.splitSentences(sourceEl.value);
+    if (parts.length > MAX_SENTENCES) {
+      updateCount(`文が ${parts.length.toLocaleString()} 個あります。${MAX_SENTENCES.toLocaleString()} 個以下になるよう減らしてください`);
+      return;
+    }
     // 同じ英文の訳とベストスコアは引き継ぐ
     const prev = new Map(state.sentences.map((s) => [s.en, s]));
-    state.sentences = Splitter.splitSentences(sourceEl.value).map(({ en, para }) => {
+    state.sentences = parts.map(({ en, para }) => {
       const p = prev.get(en);
       return { en, para, ja: p ? p.ja : '', jaManual: p ? p.jaManual : false, best: p ? p.best : null };
     });
@@ -32,6 +51,7 @@
   $('#btn-clear-source').addEventListener('click', () => {
     sourceEl.value = '';
     state.source = '';
+    updateCount();
     save();
     sourceEl.focus();
   });

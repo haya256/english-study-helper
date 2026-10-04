@@ -56,16 +56,43 @@
     return out;
   }
 
+  // 一文の上限。句読点のない文章が一文になると、発音比較（単語数の2乗に比例）が重くなるため
+  const MAX_SENTENCE_CHARS = 400;
+
+  // 長すぎる文を ; : → , → 空白 の順で区切って、上限以下のかたまりにする
+  function splitLong(sentence, max) {
+    if (sentence.length <= max) return [sentence];
+    // 区切り記号は前のかたまりに残す（古い Safari は正規表現の後読みが使えないので、目印の文字に置き換えてから分ける）
+    for (const re of [/([;:])\s+/g, /(,)\s+/g, /()\s+/g]) {
+      const pieces = sentence.replace(re, '$1\u0000').split('\u0000');
+      if (pieces.length < 2) continue;
+      const out = [];
+      let cur = '';
+      pieces.forEach((piece) => {
+        const next = cur ? cur + ' ' + piece : piece;
+        if (next.length > max && cur) { out.push(cur); cur = piece; } else cur = next;
+      });
+      if (cur) out.push(cur);
+      return out.flatMap((c) => splitLong(c, max));
+    }
+    // 空白すらない場合は文字数で切る
+    const out = [];
+    for (let k = 0; k < sentence.length; k += max) out.push(sentence.slice(k, k + max));
+    return out;
+  }
+
   // 戻り値: [{ en, para }] — para は段落の番号
   function splitSentences(text) {
     const result = [];
     toParagraphs(text).forEach((p, para) => {
-      splitParagraph(p).forEach((en) => result.push({ en, para }));
+      splitParagraph(p).forEach((sentence) => {
+        splitLong(sentence, MAX_SENTENCE_CHARS).forEach((en) => result.push({ en, para }));
+      });
     });
     return result;
   }
 
-  const api = { splitSentences, toParagraphs };
+  const api = { splitSentences, toParagraphs, MAX_SENTENCE_CHARS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Splitter = api;
 })(typeof self !== 'undefined' ? self : this);

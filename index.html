@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="stylesheet" href="style.css?v=2026100404">
+  <link rel="stylesheet" href="style.css?v=2026100405">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -42,6 +42,7 @@
         写真から読み取る：「写真を表示」で写真を選び、写真の文字を長押しして選択 → コピーして貼り付ける。
       </p>
       <textarea id="source" rows="7" placeholder="ここに英文を貼り付け" lang="en" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+      <p id="source-count" class="source-count" aria-live="polite"></p>
       <div class="row">
         <button id="btn-split" class="primary">一文ずつに分ける</button>
         <label class="button">写真を表示<input id="photo" type="file" accept="image/*" hidden></label>
@@ -135,9 +136,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026100404"></script>
-  <script src="splitter.js?v=2026100404"></script>
-  <script src="compare.js?v=2026100404"></script>
-  <script src="app.js?v=2026100404"></script>
+  <script src="store.js?v=2026100405"></script>
+  <script src="splitter.js?v=2026100405"></script>
+  <script src="compare.js?v=2026100405"></script>
+  <script src="app.js?v=2026100405"></script>
 </body>
 </html>

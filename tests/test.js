@@ -22,6 +22,25 @@ test('行の途中の改行をつなぐ', () => assert.deepStrictEqual(en('This 
 test('No. 5 で切らない', () => assert.deepStrictEqual(en('Room No. 5 is free. I said no. Then left.'), ['Room No. 5 is free.', 'I said no.', 'Then left.']));
 test('段落の番号', () => assert.deepStrictEqual(splitSentences('A b. C d.\n\nE f.').map((s) => s.para), [0, 0, 1]));
 
+test('長すぎる文はカンマで分ける', () => {
+  const clause = 'this clause has quite a few words in it to make it long';
+  const long = Array(12).fill(clause).join(', ') + '.';
+  const out = en(long);
+  assert.ok(out.length > 1);
+  assert.ok(out.every((t) => t.length <= 400));
+  assert.strictEqual(out.join(' ').replace(/\s+/g, ' '), long);
+});
+test('句読点のない長文は単語の切れ目で分ける', () => {
+  const long = Array(300).fill('word').join(' ');
+  const out = en(long);
+  assert.ok(out.every((t) => t.length <= 400 && !/^ | $/.test(t)));
+  assert.strictEqual(out.join(' '), long);
+});
+test('空白のない長い文字列は文字数で分ける', () => {
+  const out = en('x'.repeat(1000));
+  assert.deepStrictEqual(out.map((t) => t.length), [400, 400, 200]);
+});
+
 // --- 比較 ---
 const score = (a, b) => compare(a, b).score;
 test('完全一致', () => assert.strictEqual(score('I like cats.', 'i like cats'), 100));

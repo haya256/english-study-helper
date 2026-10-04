@@ -352,11 +352,16 @@
     save();
   });
 
-  $('#btn-reset').addEventListener('click', () => {
+  function resetAll() {
     if (!confirm('入力した英文・訳・スコアをすべて消します。よろしいですか？')) return;
+    // 再読み込み時の pagehide で今の状態が書き戻されないよう、保存を止めてから消す
+    clearTimeout(saveTimer);
+    window.removeEventListener('pagehide', save);
     Store.clear();
     location.reload();
-  });
+  }
+  $('#btn-reset').addEventListener('click', resetAll);
+  $('#btn-reset-top').addEventListener('click', resetAll);
 
   // ---------- 起動 ----------
   renderSentences();

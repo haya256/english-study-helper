@@ -92,7 +92,8 @@ button, .button {
 }
 button:active, .button:active { opacity: 0.6; }
 button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
-button.danger { color: var(--miss); margin-top: 12px; }
+button.danger { color: var(--miss); }
+#btn-reset { margin-top: 12px; }
 button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 button.recording { background: var(--rec); color: #fff; border-color: var(--rec); }
 
@@ -101,6 +102,7 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .section-head h2 { font-size: 17px; margin: 4px 0; }
+.head-actions { display: flex; gap: 8px; }
 
 #sentences { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: s; }
 .card { counter-increment: s; }

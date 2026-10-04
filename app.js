@@ -1,24 +1,11 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'esh:v1';
-  const JA_RE = /[぀-ヿ㐀-鿿]/;
   const $ = (sel) => document.querySelector(sel);
 
   // ---------- 状態と保存 ----------
-  const defaults = { source: '', sentences: [], settings: { rate: 0.9, voiceURI: '', translateMode: 'para' } };
-  let state = load();
-
-  function load() {
-    try {
-      const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (s && Array.isArray(s.sentences)) return { ...defaults, ...s, settings: { ...defaults.settings, ...s.settings } };
-    } catch (e) { /* 保存できない環境では毎回まっさらな状態で始める */ }
-    return JSON.parse(JSON.stringify(defaults));
-  }
-  function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* 保存できなくても動作は続ける */ }
-  }
+  let state = Store.load();
+  function save() { clearTimeout(saveTimer); Store.save(state); }
   let saveTimer = null;
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
 
@@ -36,7 +23,6 @@
     });
     save();
     renderSentences();
-    renderTranslateArea();
     if (state.sentences.length) {
       $('#input-panel').open = false;
       $('#sentences-section').scrollIntoView({ behavior: 'smooth' });
@@ -102,6 +88,7 @@
       listEl.appendChild(li);
     });
     $('#sentences-section').hidden = state.sentences.length === 0;
+    $('#translate-panel').hidden = state.sentences.length === 0;
   }
 
   function wordSpans(container, words) {
@@ -330,74 +317,6 @@
     }
   }
 
-  // ---------- Safari の翻訳から訳を取り込む ----------
-  const areaEl = $('#translate-area');
-  let observer = null;
-
-  function renderTranslateArea() {
-    if (observer) observer.disconnect();
-    areaEl.textContent = '';
-    const byPara = new Map();
-    state.sentences.forEach((s, i) => {
-      if (!byPara.has(s.para)) byPara.set(s.para, []);
-      byPara.get(s.para).push(i);
-    });
-    if (state.settings.translateMode === 'line') {
-      state.sentences.forEach((s, i) => {
-        const p = document.createElement('p');
-        p.dataset.i = i;
-        p.textContent = s.en;
-        areaEl.appendChild(p);
-      });
-    } else {
-      byPara.forEach((idxs, para) => {
-        const p = document.createElement('p');
-        p.dataset.para = para;
-        idxs.forEach((i, k) => {
-          if (k) p.appendChild(document.createTextNode(' '));
-          const span = document.createElement('span');
-          span.dataset.i = i;
-          span.textContent = state.sentences[i].en;
-          p.appendChild(span);
-        });
-        areaEl.appendChild(p);
-      });
-    }
-    $('#translate-panel').hidden = state.sentences.length === 0;
-    observer = new MutationObserver(captureSoon);
-    observer.observe(areaEl, { subtree: true, childList: true, characterData: true });
-  }
-
-  let captureTimer = null;
-  function captureSoon() { clearTimeout(captureTimer); captureTimer = setTimeout(captureTranslations, 500); }
-
-  function setAutoTranslation(i, text) {
-    const s = state.sentences[i];
-    if (!s || s.jaManual || !text || !JA_RE.test(text) || text === s.ja) return false;
-    s.ja = text;
-    const li = cardAt(i);
-    if (li) li.querySelector('.ja').value = text;
-    return true;
-  }
-
-  function captureTranslations() {
-    let changed = false;
-    areaEl.querySelectorAll('[data-i]').forEach((el) => {
-      if (setAutoTranslation(Number(el.dataset.i), el.textContent.trim())) changed = true;
-    });
-    // Safari が段落の中の区切り（span）を消してしまった場合は、「。」で分けて数が合えば割り当てる
-    areaEl.querySelectorAll('p[data-para]').forEach((p) => {
-      const idxs = state.sentences.map((s, i) => (String(s.para) === p.dataset.para ? i : -1)).filter((i) => i >= 0);
-      if (p.querySelectorAll('[data-i]').length === idxs.length) return;
-      const text = p.textContent.trim();
-      if (!JA_RE.test(text)) return;
-      const parts = (text.match(/[^。！？!?]+[。！？!?]*/g) || []).map((t) => t.trim()).filter(Boolean);
-      if (parts.length !== idxs.length) return;
-      idxs.forEach((i, k) => { if (setAutoTranslation(i, parts[k])) changed = true; });
-    });
-    if (changed) save();
-  }
-
   // ---------- 設定 ----------
   const rateEl = $('#rate');
   const rateLabel = $('#rate-label');
@@ -431,17 +350,29 @@
   modeEl.addEventListener('change', () => {
     state.settings.translateMode = modeEl.value;
     save();
-    renderTranslateArea();
   });
 
   $('#btn-reset').addEventListener('click', () => {
     if (!confirm('入力した英文・訳・スコアをすべて消します。よろしいですか？')) return;
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* 消せなくても再読み込みする */ }
+    Store.clear();
     location.reload();
   });
 
   // ---------- 起動 ----------
   renderSentences();
-  renderTranslateArea();
   if (state.sentences.length) $('#input-panel').open = false;
+
+  // 翻訳ページへ移る前に保存し、戻ってきたら翻訳ページで入った訳を読み込む
+  window.addEventListener('pagehide', save);
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    const fresh = Store.load();
+    if (fresh.sentences.length !== state.sentences.length) { state = fresh; renderSentences(); return; }
+    fresh.sentences.forEach((s, i) => {
+      state.sentences[i].ja = s.ja;
+      state.sentences[i].jaManual = s.jaManual;
+      const li = cardAt(i);
+      if (li) li.querySelector('.ja').value = s.ja || '';
+    });
+  });
 })();

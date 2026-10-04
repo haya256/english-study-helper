@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,7 +8,7 @@
   <title>English Study Helper</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<!-- Safari の翻訳では #translate-area だけを訳させ、それ以外は translate="no" で対象から外す -->
+<!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
   <header class="top" lang="ja">
     <h1>English Study Helper</h1>
@@ -41,15 +41,16 @@
       <ol id="sentences"></ol>
     </section>
 
-    <details class="panel" id="translate-panel" hidden lang="ja">
-      <summary>③ Safari で翻訳する</summary>
-      <p class="hint">
-        アドレスバーの「ぁあ」→「日本語に翻訳」を選ぶと、下の英文が日本語になり、訳が②の各文に自動で入ります。
-        取り込めた後は「ぁあ」→「原文を表示」で元に戻してください。
-        うまく入らない文は、②の訳の欄に直接入力できます。
-      </p>
-      <div id="translate-area" translate="yes" lang="en"></div>
-    </details>
+    <section class="panel" id="translate-panel" hidden lang="ja">
+      <h2>③ 訳をつける</h2>
+      <ol class="hint steps">
+        <li>下のボタンで翻訳ページを開く（英文だけのページです）</li>
+        <li>アドレスバーの「ぁあ」→「日本語に翻訳」</li>
+        <li>日本語になったら「← Back」で戻る → 各文の訳の欄に入っています</li>
+      </ol>
+      <a class="button primary" href="translate.html">翻訳ページを開く</a>
+      <p class="hint">自動で入らない文は、訳の欄に直接入力できます。英文を長押しで選択 →「翻訳」でも1文ずつ訳を確認できます。</p>
+    </section>
 
     <details class="panel" id="settings-panel" lang="ja">
       <summary>設定</summary>
@@ -91,6 +92,7 @@
     </li>
   </template>
 
+  <script src="store.js"></script>
   <script src="splitter.js"></script>
   <script src="compare.js"></script>
   <script src="app.js"></script>

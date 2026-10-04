@@ -121,8 +121,17 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .w.partial { color: var(--partial); background: var(--partial-bg); }
 .w.extra { color: var(--muted); text-decoration: line-through; }
 
-#translate-area { margin-top: 8px; font-size: 16px; }
-#translate-area p { margin: 0 0 10px; }
+#translate-panel h2 { font-size: 17px; margin: 0; }
+.steps { padding-left: 1.4em; }
+a.button { text-decoration: none; }
+a.button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+
+/* 翻訳ページ */
+.translate-nav { display: flex; align-items: center; justify-content: space-between; margin: 12px auto; }
+.status { color: var(--muted); font-size: 14px; }
+#translate-area { font-size: 18px; }
+#translate-area p { margin: 0 0 12px; }
+#translate-area p:last-child { margin-bottom: 0; }
 
 .field { display: block; margin-top: 10px; font-size: 15px; }
 .field input[type="range"] { width: 100%; margin-top: 6px; }

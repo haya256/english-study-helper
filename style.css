@@ -231,6 +231,10 @@ html[data-hand="right"] #btn-photo-close,
 html[data-hand="right"] #btn-reset { display: flex; margin-left: auto; }
 html[data-hand="right"] .translate-nav { flex-direction: row-reverse; }
 
+/* 左右設定のボタンだけは寄せずに、幅いっぱいに左半分「左」・右半分「右」と並べる */
+html[data-hand] .row.hand-switch { max-width: none; margin-left: 0; }
+.hand-switch button { flex: 1 1 0; }
+
 html[data-hand="left"] .fab { right: auto; left: max(16px, env(safe-area-inset-left)); }
 html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
 html[data-hand="left"] .section-head h2 { flex-basis: 100%; }

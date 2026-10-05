@@ -239,3 +239,5 @@ html[data-hand] .row.hand-switch { max-width: none; margin-left: 0; }
 html[data-hand="left"] .fab { right: auto; left: max(16px, env(safe-area-inset-left)); }
 html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
 html[data-hand="left"] .type-box button { order: -1; }
+/* 「聞く」は寄せた側の端に置く。訳の「聞く」も同じ並びにして、英文の「聞く」の真下に来るようにする */
+html[data-hand="left"] .card .row { flex-direction: row-reverse; }

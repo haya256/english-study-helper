@@ -42,7 +42,8 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
   line-height: 1.5;
-  padding: 0 max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  /* 下の余白は、固定の ⚙️ ボタンで最後のカードが隠れない分をとる */
+  padding: 0 max(16px, env(safe-area-inset-right)) calc(88px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 }
 .top h1 { font-size: 20px; margin: 16px 0 12px; }
 main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
@@ -162,7 +163,53 @@ a.button.primary { background: var(--accent); color: var(--accent-text); border-
 .field { display: block; margin-top: 10px; font-size: 15px; }
 .field input[type="range"] { width: 100%; margin-top: 6px; }
 .field select { margin-top: 6px; }
-.play-order { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+/* 狭い画面でも1行に収まるよう、「英語」などの文字は回数の上に置く */
+.play-order { display: flex; align-items: flex-end; gap: 8px; margin-top: 6px; }
+.play-order label { display: flex; flex-direction: column; font-size: 13px; color: var(--muted); }
+.play-order select { width: auto; margin-top: 2px; }
+.play-order span { padding-bottom: 12px; }
+
+/* 設定：⚙️ ボタンで下からせり上がるシート */
+.fab {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 10;
+  width: 56px; height: 56px; padding: 0;
+  border-radius: 50%;
+  font-size: 26px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+}
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 720px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 0 max(16px, env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+.sheet[open] { animation: sheet-up 0.2s ease-out; }
+@keyframes sheet-up { from { transform: translateY(100%); } }
+.sheet::backdrop { background: rgb(0 0 0 / 0.4); }
+/* 下までスクロールしても閉じられるよう、見出しは上に貼りつける */
+.sheet-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 12px 0 8px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.sheet-head h2 { font-size: 17px; margin: 0; }
+html:has(.sheet[open]) { overflow: hidden; } /* 開いている間は後ろのページを動かさない */
 
 /* 左右設定 */
 .hand-switch { gap: 0; }
@@ -184,6 +231,8 @@ html[data-hand="right"] #btn-photo-close,
 html[data-hand="right"] #btn-reset { display: flex; margin-left: auto; }
 html[data-hand="right"] .translate-nav { flex-direction: row-reverse; }
 
+html[data-hand="left"] .fab { right: auto; left: max(16px, env(safe-area-inset-left)); }
+html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
 html[data-hand="left"] .section-head h2 { flex-basis: 100%; }
 html[data-hand="left"] .ja-view button,
 html[data-hand="left"] .type-box button { order: -1; }

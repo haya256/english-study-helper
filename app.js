@@ -493,6 +493,16 @@
   }));
   applyHand();
 
+  // 設定は ⚙️ ボタンから開くシートに入れる。外側（暗いところ）を押しても閉じる
+  const settingsSheet = $('#settings-panel');
+  $('#btn-settings').addEventListener('click', () => settingsSheet.showModal());
+  $('#btn-settings-close').addEventListener('click', () => settingsSheet.close());
+  settingsSheet.addEventListener('click', (e) => {
+    if (e.target !== settingsSheet) return;
+    const r = settingsSheet.getBoundingClientRect();
+    if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) settingsSheet.close();
+  });
+
   // 読み上げの速さと音量は英語と日本語で別々に持つ。声によって大きさが違うので音量で揃えられるようにする
   const sliders = [
     ['#rate', '#rate-label', 'rate', (v) => `×${v.toFixed(2)}`],

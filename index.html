@@ -6,13 +6,14 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026100601" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026100601">
+  <link rel="icon" href="favicon.svg?v=2026100605" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026100605">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
   <header class="top" lang="ja">
     <h1>English Study Helper（セコいVer. たぶんSafari専用）</h1>
+    <button id="btn-reset-top" class="danger">英文と訳をクリア</button>
   </header>
 
   <main>
@@ -83,10 +84,6 @@
     <section id="sentences-section" hidden>
       <div class="section-head" lang="ja">
         <h2>③ 一文ずつ練習</h2>
-        <div class="head-actions">
-          <button id="btn-play-all">▶ 全部読む</button>
-          <button id="btn-reset-top" class="danger">英文と訳をクリア</button>
-        </div>
       </div>
       <ol id="sentences"></ol>
     </section>
@@ -114,7 +111,7 @@
       <label class="field">声（日本語）
         <select id="voice-ja"></select>
       </label>
-      <div class="field">「全部読む」の読み方（1文ごとにこの順で読む）
+      <div class="field">「ここから全部読む」の読み方（1文ごとにこの順で読む）
         <div class="play-order">
           <label>英語 <select class="play-count"></select></label>
           <span>→</span>
@@ -173,9 +170,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026100601"></script>
-  <script src="splitter.js?v=2026100601"></script>
-  <script src="compare.js?v=2026100601"></script>
-  <script src="app.js?v=2026100601"></script>
+  <script src="store.js?v=2026100605"></script>
+  <script src="splitter.js?v=2026100605"></script>
+  <script src="compare.js?v=2026100605"></script>
+  <script src="app.js?v=2026100605"></script>
 </body>
 </html>

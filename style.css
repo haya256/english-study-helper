@@ -47,7 +47,10 @@ body {
 }
 .top h1 { font-size: 20px; margin: 16px 0 12px; }
 main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
-.top { max-width: 720px; margin: 0 auto; }
+/* タイトルの行。「英文と訳をクリア」は左右設定に関係なく右端に置く */
+.top { max-width: 720px; margin: 0 auto; display: flex; align-items: flex-start; gap: 8px; }
+.top h1 { flex: 1; min-width: 0; }
+#btn-reset-top { flex: none; margin-top: 14px; padding: 8px 10px; }
 
 .panel, .card {
   background: var(--surface);
@@ -106,16 +109,14 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .section-head h2 { font-size: 17px; margin: 4px 0; }
 .section-head { flex-wrap: wrap; }
-.head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.head-actions button { padding: 8px 10px; }
 
-#sentences { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: s; }
-.card { counter-increment: s; }
+#sentences { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .card .en { font-size: 18px; margin: 0; }
-/* 文と文の間の「ここから全部読む」。カードの外に置き、左右設定の側に寄せる */
-.play-from { margin-top: 0; }
-.play-from button { padding: 6px 10px; font-size: 14px; }
-.card .en::before { content: counter(s) ". "; color: var(--muted); font-size: 14px; }
+/* カードの上の行。番号「2/10」と「ここから全部読む」。ボタンは左右設定の側に寄せ、番号は反対側に置く */
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 36px; margin-bottom: -4px; }
+.card-head .num { padding: 0 4px; color: var(--muted); font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.card-head button { padding: 6px 10px; font-size: 14px; }
+html[data-hand="left"] .card-head { flex-direction: row-reverse; }
 .card.speaking .en { color: var(--accent); }
 .ja-view { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .ja-text { margin: 0; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -225,10 +226,8 @@ html:has(.sheet[open]) { overflow: hidden; } /* 開いている間は後ろの�
    32px はパネルの外側の余白・枠線・内側の余白の合計 */
 :root { --reach: min(100%, calc(100vw * 2 / 3 - 32px)); }
 html[data-hand] .row { max-width: var(--reach); }
-html[data-hand] .head-actions { max-width: min(100%, calc(100vw * 2 / 3 - 16px)); } /* パネルの外なので余白は外側の分だけ */
 
-html[data-hand="right"] .row,
-html[data-hand="right"] .head-actions { margin-left: auto; justify-content: flex-end; }
+html[data-hand="right"] .row { margin-left: auto; justify-content: flex-end; }
 html[data-hand="right"] #btn-photo-close,
 html[data-hand="right"] #btn-reset { display: flex; margin-left: auto; }
 html[data-hand="right"] .translate-nav { flex-direction: row-reverse; }
@@ -239,5 +238,4 @@ html[data-hand] .row.hand-switch { max-width: none; margin-left: 0; }
 
 html[data-hand="left"] .fab { right: auto; left: max(16px, env(safe-area-inset-left)); }
 html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
-html[data-hand="left"] .section-head h2 { flex-basis: 100%; }
 html[data-hand="left"] .type-box button { order: -1; }

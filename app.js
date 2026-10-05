@@ -85,7 +85,7 @@
   const listEl = $('#sentences');
   const tpl = $('#tpl-sentence');
 
-  // 文と文の間に「ここから全部読む」を挟むので、カードは別に持っておく
+  // カードの上に番号などの行を挟むので、カードは別に持っておく
   let cards = [];
   function cardAt(i) { return cards[i]; }
 
@@ -95,16 +95,19 @@
     listEl.textContent = '';
     cards = [];
     state.sentences.forEach((s, i) => {
-      if (i > 0) {
-        const sep = document.createElement('li');
-        sep.className = 'play-from row';
-        sep.lang = 'ja';
-        const b = document.createElement('button');
-        b.textContent = PLAY_FROM_LABEL;
-        b.addEventListener('click', () => togglePlayAll(i, b));
-        sep.appendChild(b);
-        listEl.appendChild(sep);
-      }
+      // カードの上に「2/10」のような番号と「ここから全部読む」を置く
+      const head = document.createElement('li');
+      head.className = 'card-head';
+      head.lang = 'ja';
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.textContent = `${i + 1}/${state.sentences.length}`;
+      head.appendChild(num);
+      const b = document.createElement('button');
+      b.textContent = PLAY_FROM_LABEL;
+      b.addEventListener('click', () => togglePlayAll(i, b));
+      head.appendChild(b);
+      listEl.appendChild(head);
       const li = tpl.content.firstElementChild.cloneNode(true);
       li.querySelector('.en').textContent = s.en;
       renderJa(li, s);
@@ -185,10 +188,9 @@
   const synth = window.speechSynthesis;
   let speaking = null;
   let playAll = false;
-  let playAllButton = null; // 「全部読む」を始めたボタン。読んでいる間は ■ 止める にする
-  const PLAY_ALL_LABEL = '▶ 全部読む';
+  let playAllButton = null; // 押された「ここから全部読む」。読んでいる間は ■ 止める にする
   const PLAY_FROM_LABEL = '▶ ここから全部読む';
-  let gapTimer = null; // 「全部読む」で次の文に進む前の間
+  let gapTimer = null; // 「ここから全部読む」で次の文に進む前の間
   const SENTENCE_GAP_MS = 2000;
 
   function englishVoices() {
@@ -224,8 +226,7 @@
   function endPlayAll() {
     playAll = false;
     clearTimeout(gapTimer);
-    $('#btn-play-all').textContent = PLAY_ALL_LABEL;
-    if (playAllButton && playAllButton !== $('#btn-play-all')) playAllButton.textContent = PLAY_FROM_LABEL;
+    if (playAllButton) playAllButton.textContent = PLAY_FROM_LABEL;
     playAllButton = null;
   }
 
@@ -275,20 +276,18 @@
     speak(i, null, lang);
   }
 
-  // from 番目の文から最後まで読む。上の「全部読む」は 0 番目から
+  // from 番目の文から最後まで読む
   function togglePlayAll(from, button) {
     if (playAll) { stopSpeaking(); return; }
     stopRecognition();
     playAll = true;
     playAllButton = button;
-    // 上のボタンでも止められるよう、どこから始めても上は ■ 止める にする
-    $('#btn-play-all').textContent = '■ 止める';
     button.textContent = '■ 止める';
     // 1文ごとに「英語→日本語→英語」をそれぞれ設定の回数だけ読む。訳がない文の日本語は飛ばす
     const counts = state.settings.playAllCounts;
     if (counts.every((n) => n === 0)) {
       stopSpeaking();
-      alert('設定の「全部読む」の読み方で、どれかを1回以上にしてください');
+      alert('設定の「ここから全部読む」の読み方で、どれかを1回以上にしてください');
       return;
     }
     const queue = [];
@@ -314,7 +313,6 @@
     };
     next(0);
   }
-  $('#btn-play-all').addEventListener('click', (e) => togglePlayAll(0, e.currentTarget));
 
   // ---------- 発音チェック（音声認識） ----------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;

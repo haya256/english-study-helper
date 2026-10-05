@@ -3,7 +3,7 @@
   'use strict';
 
   const KEY = 'esh:v1';
-  const defaults = { source: '', sentences: [], settings: { rate: 0.5, rateJa: 1.5, volume: 1, volumeJa: 1, voiceURI: '', translateMode: 'para', silenceSec: 5, hand: 'right', playAllLang: 'en' } };
+  const defaults = { source: '', sentences: [], settings: { rate: 0.5, rateJa: 1.5, volume: 1, volumeJa: 1, voiceURI: '', voiceJaURI: '', translateMode: 'para', silenceSec: 5, hand: 'right', playAllLang: 'en' } };
 
   function load() {
     try {

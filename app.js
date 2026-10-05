@@ -214,9 +214,15 @@
       || voices.find((v) => /en[-_]US/i.test(v.lang))
       || voices[0] || null;
   }
+  function japaneseVoices() {
+    return synth ? synth.getVoices().filter((v) => /^ja[-_]/i.test(v.lang)) : [];
+  }
   function japaneseVoice() {
-    const voices = synth ? synth.getVoices().filter((v) => /^ja[-_]/i.test(v.lang)) : [];
-    return voices.find((v) => /kyoko/i.test(v.name)) || voices.find((v) => v.default) || voices[0] || null;
+    const voices = japaneseVoices();
+    return voices.find((v) => v.voiceURI === state.settings.voiceJaURI)
+      || voices.find((v) => /kyoko/i.test(v.name))
+      || voices.find((v) => v.default)
+      || voices[0] || null;
   }
 
   function isSpeaking(i, lang) { return speaking && speaking.i === i && speaking.lang === lang; }
@@ -500,18 +506,24 @@
     });
   });
 
-  const voiceEl = $('#voice');
+  // 声の選択は英語と日本語で別々に持つ
+  const voiceSelects = [
+    [$('#voice'), englishVoices, currentVoice, 'voiceURI'],
+    [$('#voice-ja'), japaneseVoices, japaneseVoice, 'voiceJaURI'],
+  ];
   function renderVoices() {
-    const voices = englishVoices().sort((a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name));
-    const cur = currentVoice();
-    voiceEl.textContent = '';
-    if (voices.length === 0) {
-      voiceEl.appendChild(new Option('（標準）', ''));
-      return;
-    }
-    voices.forEach((v) => voiceEl.appendChild(new Option(`${v.name} (${v.lang})`, v.voiceURI, false, cur && v.voiceURI === cur.voiceURI)));
+    voiceSelects.forEach(([el, list, current]) => {
+      const voices = list().sort((a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name));
+      const cur = current();
+      el.textContent = '';
+      if (voices.length === 0) {
+        el.appendChild(new Option('（標準）', ''));
+        return;
+      }
+      voices.forEach((v) => el.appendChild(new Option(`${v.name} (${v.lang})`, v.voiceURI, false, cur && v.voiceURI === cur.voiceURI)));
+    });
   }
-  voiceEl.addEventListener('change', () => { state.settings.voiceURI = voiceEl.value; save(); });
+  voiceSelects.forEach(([el, , , key]) => el.addEventListener('change', () => { state.settings[key] = el.value; save(); }));
   if (synth) {
     renderVoices();
     synth.addEventListener('voiceschanged', renderVoices);

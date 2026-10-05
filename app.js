@@ -203,6 +203,8 @@
   const synth = window.speechSynthesis;
   let speaking = null;
   let playAll = false;
+  let gapTimer = null; // 「全部読む」で次の文に進む前の間
+  const SENTENCE_GAP_MS = 2000;
 
   function englishVoices() {
     return synth ? synth.getVoices().filter((v) => /^en[-_]/i.test(v.lang)) : [];
@@ -236,6 +238,7 @@
 
   function stopSpeaking() {
     playAll = false;
+    clearTimeout(gapTimer);
     markSpeaking(speaking, false);
     speaking = null;
     if (synth) synth.cancel();
@@ -278,6 +281,7 @@
     if (isSpeaking(i, lang)) { stopSpeaking(); return; }
     stopRecognition();
     playAll = false;
+    clearTimeout(gapTimer);
     $('#btn-play-all').textContent = '▶ 全部読む';
     speak(i, null, lang);
   }
@@ -307,8 +311,12 @@
     const next = (k) => {
       if (!playAll || k >= queue.length) { stopSpeaking(); return; }
       const { i, lang } = queue[k];
-      if (k === 0 || queue[k - 1].i !== i) cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
-      speak(i, () => next(k + 1), lang);
+      const go = () => speak(i, () => next(k + 1), lang);
+      if (k > 0 && queue[k - 1].i === i) { go(); return; }
+      cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // iOS はボタンを押した流れの中で読み始めないと音が出ないことがあるので、最初の文はすぐ読む。
+      // 次の文に進むときは少し間をあける
+      if (k === 0) go(); else gapTimer = setTimeout(go, SENTENCE_GAP_MS);
     };
     next(0);
   });

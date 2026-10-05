@@ -287,11 +287,17 @@
     stopRecognition();
     playAll = true;
     $('#btn-play-all').textContent = '■ 止める';
-    // 設定に合わせて読む順番を作る。訳がない文の日本語は飛ばす
-    const langs = { en: ['en'], ja: ['ja'], both: ['en', 'ja'] }[state.settings.playAllLang] || ['en'];
+    // 1文ごとに「英語→日本語→英語」をそれぞれ設定の回数だけ読む。訳がない文の日本語は飛ばす
+    const counts = state.settings.playAllCounts;
+    if (counts.every((n) => n === 0)) {
+      stopSpeaking();
+      alert('設定の「全部読む」の読み方で、どれかを1回以上にしてください');
+      return;
+    }
     const queue = [];
-    state.sentences.forEach((s, i) => langs.forEach((lang) => {
-      if (lang === 'en' || (s.ja && s.ja.trim())) queue.push({ i, lang });
+    state.sentences.forEach((s, i) => ['en', 'ja', 'en'].forEach((lang, k) => {
+      if (lang === 'ja' && !(s.ja && s.ja.trim())) return;
+      for (let n = 0; n < counts[k]; n++) queue.push({ i, lang });
     }));
     if (queue.length === 0) {
       stopSpeaking();
@@ -533,9 +539,11 @@
   silenceEl.value = String(state.settings.silenceSec);
   silenceEl.addEventListener('change', () => { state.settings.silenceSec = Number(silenceEl.value); save(); });
 
-  const playAllLangEl = $('#play-all-lang');
-  playAllLangEl.value = state.settings.playAllLang;
-  playAllLangEl.addEventListener('change', () => { state.settings.playAllLang = playAllLangEl.value; save(); });
+  document.querySelectorAll('.play-count').forEach((el, k) => {
+    for (let n = 0; n <= 5; n++) el.appendChild(new Option(`${n}回`, String(n)));
+    el.value = String(state.settings.playAllCounts[k]);
+    el.addEventListener('change', () => { state.settings.playAllCounts[k] = Number(el.value); save(); });
+  });
 
   const modeEl = $('#translate-mode');
   modeEl.value = state.settings.translateMode;

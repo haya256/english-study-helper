@@ -162,6 +162,7 @@ a.button.primary { background: var(--accent); color: var(--accent-text); border-
 .field { display: block; margin-top: 10px; font-size: 15px; }
 .field input[type="range"] { width: 100%; margin-top: 6px; }
 .field select { margin-top: 6px; }
+.play-order { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 
 /* 左右設定 */
 .hand-switch { gap: 0; }

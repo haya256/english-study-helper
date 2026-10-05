@@ -111,13 +111,15 @@
       <label class="field">声（日本語）
         <select id="voice-ja"></select>
       </label>
-      <label class="field">「全部読む」で読むもの
-        <select id="play-all-lang">
-          <option value="en">英語</option>
-          <option value="ja">日本語（訳）</option>
-          <option value="both">両方（英語 → 日本語の順）</option>
-        </select>
-      </label>
+      <div class="field">「全部読む」の読み方（1文ごとにこの順で読む）
+        <div class="play-order">
+          <label>英語 <select class="play-count"></select></label>
+          <span>→</span>
+          <label>日本語 <select class="play-count"></select></label>
+          <span>→</span>
+          <label>英語 <select class="play-count"></select></label>
+        </div>
+      </div>
       <label class="field">🎤 話し終わりの判定
         <select id="silence">
           <option value="3">3秒黙ったら判定</option>

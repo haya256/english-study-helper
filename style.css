@@ -114,10 +114,11 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .card .en { font-size: 18px; margin: 0; }
 .card .en::before { content: counter(s) ". "; color: var(--muted); font-size: 14px; }
 .card.speaking .en { color: var(--accent); }
-.ja-view { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-.ja-text { flex: 1; margin: 0; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ja-view { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ja-text { margin: 0; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ja-text.empty { color: var(--muted); }
-.btn-ja-speak { flex: 0 0 auto; min-height: 36px; padding: 4px 10px; font-size: 14px; color: var(--muted); }
+.card.speaking-ja .ja-text { color: var(--accent); }
+.card .row .row-spacer { flex: 1 1 0; padding: 0 6px; border: 1px solid transparent; } /* ボタンと同じ幅になるよう余白と枠を揃える */
 .card .row { flex-wrap: nowrap; }
 .card .row button { flex: 1 1 0; min-width: 0; padding: 8px 6px; white-space: nowrap; }
 .type-box { display: flex; gap: 8px; margin-top: 10px; }
@@ -236,5 +237,4 @@ html[data-hand] .row.hand-switch { max-width: none; margin-left: 0; }
 html[data-hand="left"] .fab { right: auto; left: max(16px, env(safe-area-inset-left)); }
 html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
 html[data-hand="left"] .section-head h2 { flex-basis: 100%; }
-html[data-hand="left"] .ja-view button,
 html[data-hand="left"] .type-box button { order: -1; }

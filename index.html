@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026100508" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026100508">
+  <link rel="icon" href="favicon.svg?v=2026100509" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026100509">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -149,8 +149,8 @@
     <li class="card">
       <p class="en" lang="en"></p>
       <div class="row" lang="ja">
-        <button class="btn-speak" aria-label="読み上げ">🔊 聞く</button>
         <button class="btn-mic" aria-label="発音チェック">🎤 話す</button>
+        <button class="btn-speak" aria-label="読み上げ">🔊 聞く</button>
       </div>
       <!-- 🎤 が使えない環境で 🎤 を押したときだけ出す。キーボードの音声入力で話して判定する -->
       <div class="type-box" hidden lang="ja">
@@ -164,14 +164,18 @@
       </div>
       <div class="ja-view" lang="ja">
         <p class="ja-text"></p>
-        <button class="btn-ja-speak" aria-label="訳を読み上げ">🔊</button>
+        <!-- 英文と同じ形にする。空きを置いて、🔊 聞く が英文の 🔊 聞く の真下に来るようにする -->
+        <div class="row ja-actions">
+          <span class="row-spacer" aria-hidden="true"></span>
+          <button class="btn-ja-speak" aria-label="訳を読み上げ">🔊 聞く</button>
+        </div>
       </div>
     </li>
   </template>
 
-  <script src="store.js?v=2026100508"></script>
-  <script src="splitter.js?v=2026100508"></script>
-  <script src="compare.js?v=2026100508"></script>
-  <script src="app.js?v=2026100508"></script>
+  <script src="store.js?v=2026100509"></script>
+  <script src="splitter.js?v=2026100509"></script>
+  <script src="compare.js?v=2026100509"></script>
+  <script src="app.js?v=2026100509"></script>
 </body>
 </html>

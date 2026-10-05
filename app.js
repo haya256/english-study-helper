@@ -114,7 +114,7 @@
     const p = li.querySelector('.ja-text');
     p.textContent = text || '訳なし';
     p.classList.toggle('empty', !text);
-    li.querySelector('.btn-ja-speak').hidden = !text;
+    li.querySelector('.ja-actions').hidden = !text;
   }
 
   function wordSpans(container, words) {
@@ -200,7 +200,7 @@
   function markSpeaking(sp, on) {
     const li = sp && cardAt(sp.i);
     if (!li) return;
-    if (sp.lang === 'en') li.classList.toggle('speaking', on);
+    li.classList.toggle(sp.lang === 'en' ? 'speaking' : 'speaking-ja', on);
     li.querySelector(sp.lang === 'en' ? '.btn-speak' : '.btn-ja-speak').classList.toggle('active', on);
   }
 

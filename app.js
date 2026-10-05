@@ -252,6 +252,7 @@
     } else {
       const v = japaneseVoice();
       if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'ja-JP';
+      u.rate = Number(state.settings.rateJa);
     }
     const me = { i, lang };
     u.onend = u.onerror = () => {
@@ -478,14 +479,17 @@
   }));
   applyHand();
 
-  const rateEl = $('#rate');
-  const rateLabel = $('#rate-label');
-  rateEl.value = state.settings.rate;
-  rateLabel.textContent = `×${Number(state.settings.rate).toFixed(2)}`;
-  rateEl.addEventListener('input', () => {
-    state.settings.rate = Number(rateEl.value);
-    rateLabel.textContent = `×${state.settings.rate.toFixed(2)}`;
-    saveSoon();
+  // 読み上げの速さは英語と日本語で別々に持つ
+  [['#rate', '#rate-label', 'rate'], ['#rate-ja', '#rate-ja-label', 'rateJa']].forEach(([input, label, key]) => {
+    const rateEl = $(input);
+    const rateLabel = $(label);
+    rateEl.value = state.settings[key];
+    rateLabel.textContent = `×${Number(state.settings[key]).toFixed(2)}`;
+    rateEl.addEventListener('input', () => {
+      state.settings[key] = Number(rateEl.value);
+      rateLabel.textContent = `×${state.settings[key].toFixed(2)}`;
+      saveSoon();
+    });
   });
 
   const voiceEl = $('#voice');

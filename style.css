@@ -117,9 +117,7 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .ja-view { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .ja-text { flex: 1; margin: 0; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ja-text.empty { color: var(--muted); }
-.btn-ja-speak, .btn-ja-edit { flex: 0 0 auto; min-height: 36px; padding: 4px 10px; font-size: 14px; color: var(--muted); }
-.ja-edit { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
-.ja-edit textarea { font-size: 16px; overflow: hidden; resize: none; }
+.btn-ja-speak { flex: 0 0 auto; min-height: 36px; padding: 4px 10px; font-size: 14px; color: var(--muted); }
 .card .row { flex-wrap: nowrap; }
 .card .row button { flex: 1 1 0; min-width: 0; padding: 8px 6px; white-space: nowrap; }
 .type-box { display: flex; gap: 8px; margin-top: 10px; }
@@ -240,4 +238,3 @@ html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
 html[data-hand="left"] .section-head h2 { flex-basis: 100%; }
 html[data-hand="left"] .ja-view button,
 html[data-hand="left"] .type-box button { order: -1; }
-html[data-hand="left"] .ja-edit { align-items: flex-start; }

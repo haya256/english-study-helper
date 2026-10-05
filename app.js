@@ -94,26 +94,7 @@
     state.sentences.forEach((s, i) => {
       const li = tpl.content.firstElementChild.cloneNode(true);
       li.querySelector('.en').textContent = s.en;
-      // 訳はふだん普通の文として表示し、✎ を押したときだけ入力欄にする
-      const ja = li.querySelector('.ja');
       renderJa(li, s);
-      ja.addEventListener('input', () => {
-        s.ja = ja.value;
-        s.jaManual = ja.value.trim() !== '';
-        fitHeight(ja);
-        saveSoon();
-      });
-      li.querySelector('.btn-ja-edit').addEventListener('click', () => {
-        li.querySelector('.ja-view').hidden = true;
-        li.querySelector('.ja-edit').hidden = false;
-        ja.value = s.ja || '';
-        fitHeight(ja);
-        ja.focus();
-      });
-      li.querySelector('.btn-ja-done').addEventListener('click', () => {
-        save();
-        renderJa(li, s);
-      });
       li.querySelector('.btn-speak').addEventListener('click', () => toggleSpeak(i));
       li.querySelector('.btn-ja-speak').addEventListener('click', () => toggleSpeak(i, 'ja'));
       li.querySelector('.btn-mic').addEventListener('click', () => toggleRecognition(i));
@@ -133,15 +114,7 @@
     const p = li.querySelector('.ja-text');
     p.textContent = text || '訳なし';
     p.classList.toggle('empty', !text);
-    li.querySelector('.btn-ja-edit').textContent = text ? '✎' : '✎ 訳を入力';
     li.querySelector('.btn-ja-speak').hidden = !text;
-    li.querySelector('.ja-view').hidden = false;
-    li.querySelector('.ja-edit').hidden = true;
-  }
-
-  function fitHeight(el) {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 2 + 'px';
   }
 
   function wordSpans(container, words) {

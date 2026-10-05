@@ -249,10 +249,12 @@
       const v = currentVoice();
       if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
       u.rate = Number(state.settings.rate);
+      u.volume = Number(state.settings.volume);
     } else {
       const v = japaneseVoice();
       if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'ja-JP';
       u.rate = Number(state.settings.rateJa);
+      u.volume = Number(state.settings.volumeJa);
     }
     const me = { i, lang };
     u.onend = u.onerror = () => {
@@ -479,15 +481,21 @@
   }));
   applyHand();
 
-  // 読み上げの速さは英語と日本語で別々に持つ
-  [['#rate', '#rate-label', 'rate'], ['#rate-ja', '#rate-ja-label', 'rateJa']].forEach(([input, label, key]) => {
-    const rateEl = $(input);
-    const rateLabel = $(label);
-    rateEl.value = state.settings[key];
-    rateLabel.textContent = `×${Number(state.settings[key]).toFixed(2)}`;
-    rateEl.addEventListener('input', () => {
-      state.settings[key] = Number(rateEl.value);
-      rateLabel.textContent = `×${state.settings[key].toFixed(2)}`;
+  // 読み上げの速さと音量は英語と日本語で別々に持つ。声によって大きさが違うので音量で揃えられるようにする
+  const sliders = [
+    ['#rate', '#rate-label', 'rate', (v) => `×${v.toFixed(2)}`],
+    ['#rate-ja', '#rate-ja-label', 'rateJa', (v) => `×${v.toFixed(2)}`],
+    ['#volume', '#volume-label', 'volume', (v) => `${Math.round(v * 100)}%`],
+    ['#volume-ja', '#volume-ja-label', 'volumeJa', (v) => `${Math.round(v * 100)}%`],
+  ];
+  sliders.forEach(([input, label, key, format]) => {
+    const el = $(input);
+    const labelEl = $(label);
+    el.value = state.settings[key];
+    labelEl.textContent = format(Number(state.settings[key]));
+    el.addEventListener('input', () => {
+      state.settings[key] = Number(el.value);
+      labelEl.textContent = format(state.settings[key]);
       saveSoon();
     });
   });

@@ -85,13 +85,26 @@
   const listEl = $('#sentences');
   const tpl = $('#tpl-sentence');
 
-  function cardAt(i) { return listEl.children[i]; }
+  // 文と文の間に「ここから全部読む」を挟むので、カードは別に持っておく
+  let cards = [];
+  function cardAt(i) { return cards[i]; }
 
   function renderSentences() {
     stopSpeaking();
     stopRecognition();
     listEl.textContent = '';
+    cards = [];
     state.sentences.forEach((s, i) => {
+      if (i > 0) {
+        const sep = document.createElement('li');
+        sep.className = 'play-from row';
+        sep.lang = 'ja';
+        const b = document.createElement('button');
+        b.textContent = PLAY_FROM_LABEL;
+        b.addEventListener('click', () => togglePlayAll(i, b));
+        sep.appendChild(b);
+        listEl.appendChild(sep);
+      }
       const li = tpl.content.firstElementChild.cloneNode(true);
       li.querySelector('.en').textContent = s.en;
       renderJa(li, s);
@@ -104,6 +117,7 @@
       });
       if (s.best != null) setScoreText(li, null, s.best);
       listEl.appendChild(li);
+      cards.push(li);
     });
     $('#sentences-section').hidden = state.sentences.length === 0;
     $('#translate-panel').hidden = state.sentences.length === 0;
@@ -171,6 +185,9 @@
   const synth = window.speechSynthesis;
   let speaking = null;
   let playAll = false;
+  let playAllButton = null; // 「全部読む」を始めたボタン。読んでいる間は ■ 止める にする
+  const PLAY_ALL_LABEL = '▶ 全部読む';
+  const PLAY_FROM_LABEL = '▶ ここから全部読む';
   let gapTimer = null; // 「全部読む」で次の文に進む前の間
   const SENTENCE_GAP_MS = 2000;
 
@@ -204,13 +221,19 @@
     li.querySelector(sp.lang === 'en' ? '.btn-speak' : '.btn-ja-speak').classList.toggle('active', on);
   }
 
-  function stopSpeaking() {
+  function endPlayAll() {
     playAll = false;
     clearTimeout(gapTimer);
+    $('#btn-play-all').textContent = PLAY_ALL_LABEL;
+    if (playAllButton && playAllButton !== $('#btn-play-all')) playAllButton.textContent = PLAY_FROM_LABEL;
+    playAllButton = null;
+  }
+
+  function stopSpeaking() {
+    endPlayAll();
     markSpeaking(speaking, false);
     speaking = null;
     if (synth) synth.cancel();
-    $('#btn-play-all').textContent = '▶ 全部読む';
   }
 
   function speak(i, onDone, lang = 'en') {
@@ -248,17 +271,19 @@
   function toggleSpeak(i, lang = 'en') {
     if (isSpeaking(i, lang)) { stopSpeaking(); return; }
     stopRecognition();
-    playAll = false;
-    clearTimeout(gapTimer);
-    $('#btn-play-all').textContent = '▶ 全部読む';
+    endPlayAll();
     speak(i, null, lang);
   }
 
-  $('#btn-play-all').addEventListener('click', () => {
+  // from 番目の文から最後まで読む。上の「全部読む」は 0 番目から
+  function togglePlayAll(from, button) {
     if (playAll) { stopSpeaking(); return; }
     stopRecognition();
     playAll = true;
+    playAllButton = button;
+    // 上のボタンでも止められるよう、どこから始めても上は ■ 止める にする
     $('#btn-play-all').textContent = '■ 止める';
+    button.textContent = '■ 止める';
     // 1文ごとに「英語→日本語→英語」をそれぞれ設定の回数だけ読む。訳がない文の日本語は飛ばす
     const counts = state.settings.playAllCounts;
     if (counts.every((n) => n === 0)) {
@@ -268,6 +293,7 @@
     }
     const queue = [];
     state.sentences.forEach((s, i) => ['en', 'ja', 'en'].forEach((lang, k) => {
+      if (i < from) return;
       if (lang === 'ja' && !(s.ja && s.ja.trim())) return;
       for (let n = 0; n < counts[k]; n++) queue.push({ i, lang });
     }));
@@ -287,7 +313,8 @@
       if (k === 0) go(); else gapTimer = setTimeout(go, SENTENCE_GAP_MS);
     };
     next(0);
-  });
+  }
+  $('#btn-play-all').addEventListener('click', (e) => togglePlayAll(0, e.currentTarget));
 
   // ---------- 発音チェック（音声認識） ----------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;

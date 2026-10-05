@@ -112,6 +112,9 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 #sentences { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: s; }
 .card { counter-increment: s; }
 .card .en { font-size: 18px; margin: 0; }
+/* 文と文の間の「ここから全部読む」。カードの外に置き、左右設定の側に寄せる */
+.play-from { margin-top: 0; }
+.play-from button { padding: 6px 10px; font-size: 14px; }
 .card .en::before { content: counter(s) ". "; color: var(--muted); font-size: 14px; }
 .card.speaking .en { color: var(--accent); }
 .ja-view { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }

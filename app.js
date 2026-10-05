@@ -117,11 +117,6 @@
       li.querySelector('.btn-speak').addEventListener('click', () => toggleSpeak(i));
       li.querySelector('.btn-ja-speak').addEventListener('click', () => toggleSpeak(i, 'ja'));
       li.querySelector('.btn-mic').addEventListener('click', () => toggleRecognition(i));
-      li.querySelector('.btn-type').addEventListener('click', () => {
-        const box = li.querySelector('.type-box');
-        box.hidden = !box.hidden;
-        if (!box.hidden) li.querySelector('.type-input').focus();
-      });
       li.querySelector('.btn-type-check').addEventListener('click', () => {
         const text = li.querySelector('.type-input').value.trim();
         if (text) showResult(i, Compare.compare(s.en, text));
@@ -349,8 +344,9 @@
       stopRecognition();
     }
     if (!SR) {
-      showMessage(i, 'この環境では音声認識が使えません。「⌨ 入力」を押して、キーボードの🎙（音声入力）で話してください。');
+      showMessage(i, 'この環境では音声認識が使えません。出てきた入力欄で、キーボードの🎙（音声入力）を使って話し、「判定」を押してください。');
       cardAt(i).querySelector('.type-box').hidden = false;
+      cardAt(i).querySelector('.type-input').focus();
       return;
     }
     stopSpeaking();

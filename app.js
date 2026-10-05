@@ -5,6 +5,7 @@
 
   // ---------- 状態と保存 ----------
   let state = Store.load();
+  document.documentElement.dataset.hand = state.settings.hand; // 画面が一瞬逆側に描かれないよう最初に反映する
   function save() { clearTimeout(saveTimer); Store.save(state); }
   let saveTimer = null;
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
@@ -452,6 +453,19 @@
   }
 
   // ---------- 設定 ----------
+  // 左右設定：ボタンを寄せる側。見た目は style.css の html[data-hand] で切り替える
+  const handButtons = document.querySelectorAll('.hand-switch button');
+  function applyHand() {
+    document.documentElement.dataset.hand = state.settings.hand;
+    handButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.hand === state.settings.hand)));
+  }
+  handButtons.forEach((b) => b.addEventListener('click', () => {
+    state.settings.hand = b.dataset.hand;
+    applyHand();
+    save();
+  }));
+  applyHand();
+
   const rateEl = $('#rate');
   const rateLabel = $('#rate-label');
   rateEl.value = state.settings.rate;

@@ -3,7 +3,7 @@
   'use strict';
 
   const KEY = 'esh:v1';
-  const defaults = { source: '', sentences: [], settings: { rate: 0.9, voiceURI: '', translateMode: 'para', silenceSec: 5 } };
+  const defaults = { source: '', sentences: [], settings: { rate: 0.9, voiceURI: '', translateMode: 'para', silenceSec: 5, hand: 'right' } };
 
   function load() {
     try {

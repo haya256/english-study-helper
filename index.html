@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026100407" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026100407">
+  <link rel="icon" href="favicon.svg?v=2026100501" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026100501">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -35,6 +35,15 @@
         <li>iPhone でマイクを拒否したときは「設定」→ Safari → マイク で変更できます</li>
       </ul>
     </details>
+
+    <section class="panel" id="hand-panel" lang="ja">
+      <h2>左右設定</h2>
+      <p class="hint">操作ボタンを、片手で押しやすい側に寄せます。</p>
+      <div class="row hand-switch" role="group" aria-label="ボタンを寄せる側">
+        <button type="button" data-hand="left" aria-pressed="false">左</button>
+        <button type="button" data-hand="right" aria-pressed="false">右</button>
+      </div>
+    </section>
 
     <details class="panel" id="input-panel" open lang="ja">
       <summary>① 英文を入力</summary>
@@ -138,9 +147,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026100407"></script>
-  <script src="splitter.js?v=2026100407"></script>
-  <script src="compare.js?v=2026100407"></script>
-  <script src="app.js?v=2026100407"></script>
+  <script src="store.js?v=2026100501"></script>
+  <script src="splitter.js?v=2026100501"></script>
+  <script src="compare.js?v=2026100501"></script>
+  <script src="app.js?v=2026100501"></script>
 </body>
 </html>

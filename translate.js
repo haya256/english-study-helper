@@ -7,6 +7,7 @@
   const areaEl = document.getElementById('translate-area');
   const statusEl = document.getElementById('status');
   let state = Store.load();
+  document.documentElement.dataset.hand = state.settings.hand;
 
   function render() {
     areaEl.textContent = '';

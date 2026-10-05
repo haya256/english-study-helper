@@ -104,7 +104,9 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .section-head h2 { font-size: 17px; margin: 4px 0; }
-.head-actions { display: flex; gap: 8px; }
+.section-head { flex-wrap: wrap; }
+.head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.head-actions button { padding: 8px 10px; }
 
 #sentences { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: s; }
 .card { counter-increment: s; }
@@ -117,8 +119,8 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .btn-ja-speak, .btn-ja-edit { flex: 0 0 auto; min-height: 36px; padding: 4px 10px; font-size: 14px; color: var(--muted); }
 .ja-edit { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .ja-edit textarea { font-size: 16px; overflow: hidden; resize: none; }
-.card .row button { flex: 1 1 auto; }
-.card .btn-type { flex: 0 0 auto; }
+.card .row { flex-wrap: nowrap; }
+.card .row button { flex: 1 1 0; min-width: 0; padding: 8px 6px; white-space: nowrap; }
 .type-box { display: flex; gap: 8px; margin-top: 10px; }
 .type-box input { flex: 1; }
 
@@ -135,7 +137,7 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .w.partial { color: var(--partial); background: var(--partial-bg); }
 .w.extra { color: var(--muted); text-decoration: line-through; }
 
-#translate-panel h2 { font-size: 17px; margin: 0; }
+#translate-panel h2, #hand-panel h2 { font-size: 17px; margin: 0; }
 #translate-panel .row { align-items: center; }
 .info-button {
   width: 32px; min-height: 32px; height: 32px; padding: 0;
@@ -160,3 +162,28 @@ a.button.primary { background: var(--accent); color: var(--accent-text); border-
 .field { display: block; margin-top: 10px; font-size: 15px; }
 .field input[type="range"] { width: 100%; margin-top: 6px; }
 .field select { margin-top: 6px; }
+
+/* 左右設定 */
+.hand-switch { gap: 0; }
+.hand-switch button { min-width: 72px; font-weight: 600; }
+.hand-switch button:first-child { border-radius: 10px 0 0 10px; }
+.hand-switch button:last-child { border-radius: 0 10px 10px 0; border-left: none; }
+.hand-switch button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.hand-switch button[aria-pressed="true"]::before { content: "✓ "; white-space: pre; }
+
+/* 片手で届くよう、ボタン類は画面の端から約2/3の幅に収める。
+   32px はパネルの外側の余白・枠線・内側の余白の合計 */
+:root { --reach: min(100%, calc(100vw * 2 / 3 - 32px)); }
+html[data-hand] .row { max-width: var(--reach); }
+html[data-hand] .head-actions { max-width: min(100%, calc(100vw * 2 / 3 - 16px)); } /* パネルの外なので余白は外側の分だけ */
+
+html[data-hand="right"] .row,
+html[data-hand="right"] .head-actions { margin-left: auto; justify-content: flex-end; }
+html[data-hand="right"] #btn-photo-close,
+html[data-hand="right"] #btn-reset { display: flex; margin-left: auto; }
+html[data-hand="right"] .translate-nav { flex-direction: row-reverse; }
+
+html[data-hand="left"] .section-head h2 { flex-basis: 100%; }
+html[data-hand="left"] .ja-view button,
+html[data-hand="left"] .type-box button { order: -1; }
+html[data-hand="left"] .ja-edit { align-items: flex-start; }

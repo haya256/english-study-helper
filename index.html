@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026100501" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026100501">
+  <link rel="icon" href="favicon.svg?v=2026100502" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026100502">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -99,6 +99,13 @@
       <label class="field">声
         <select id="voice"></select>
       </label>
+      <label class="field">「全部読む」で読むもの
+        <select id="play-all-lang">
+          <option value="en">英語</option>
+          <option value="ja">日本語（訳）</option>
+          <option value="both">両方（英語 → 日本語の順）</option>
+        </select>
+      </label>
       <label class="field">🎤 話し終わりの判定
         <select id="silence">
           <option value="3">3秒黙ったら判定</option>
@@ -147,9 +154,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026100501"></script>
-  <script src="splitter.js?v=2026100501"></script>
-  <script src="compare.js?v=2026100501"></script>
-  <script src="app.js?v=2026100501"></script>
+  <script src="store.js?v=2026100502"></script>
+  <script src="splitter.js?v=2026100502"></script>
+  <script src="compare.js?v=2026100502"></script>
+  <script src="app.js?v=2026100502"></script>
 </body>
 </html>

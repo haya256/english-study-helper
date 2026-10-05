@@ -278,10 +278,22 @@
     stopRecognition();
     playAll = true;
     $('#btn-play-all').textContent = '■ 止める';
-    const next = (i) => {
-      if (!playAll || i >= state.sentences.length) { stopSpeaking(); return; }
-      cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
-      speak(i, () => next(i + 1));
+    // 設定に合わせて読む順番を作る。訳がない文の日本語は飛ばす
+    const langs = { en: ['en'], ja: ['ja'], both: ['en', 'ja'] }[state.settings.playAllLang] || ['en'];
+    const queue = [];
+    state.sentences.forEach((s, i) => langs.forEach((lang) => {
+      if (lang === 'en' || (s.ja && s.ja.trim())) queue.push({ i, lang });
+    }));
+    if (queue.length === 0) {
+      stopSpeaking();
+      alert('読み上げる訳がありません。② で訳をつけてください');
+      return;
+    }
+    const next = (k) => {
+      if (!playAll || k >= queue.length) { stopSpeaking(); return; }
+      const { i, lang } = queue[k];
+      if (k === 0 || queue[k - 1].i !== i) cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      speak(i, () => next(k + 1), lang);
     };
     next(0);
   });
@@ -496,6 +508,10 @@
   const silenceEl = $('#silence');
   silenceEl.value = String(state.settings.silenceSec);
   silenceEl.addEventListener('change', () => { state.settings.silenceSec = Number(silenceEl.value); save(); });
+
+  const playAllLangEl = $('#play-all-lang');
+  playAllLangEl.value = state.settings.playAllLang;
+  playAllLangEl.addEventListener('change', () => { state.settings.playAllLang = playAllLangEl.value; save(); });
 
   const modeEl = $('#translate-mode');
   modeEl.value = state.settings.translateMode;

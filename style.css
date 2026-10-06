@@ -176,7 +176,7 @@ a.button.primary { background: var(--accent); color: var(--accent-text); border-
 .fab {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom));
-  right: max(16px, env(safe-area-inset-right));
+  left: 0; right: 0; margin: 0 auto; /* 左右設定に関わらず真ん中に置く */
   z-index: 10;
   width: 56px; height: 56px; padding: 0;
   border-radius: 50%;
@@ -236,7 +236,6 @@ html[data-hand="right"] .translate-nav { flex-direction: row-reverse; }
 html[data-hand] .row.hand-switch { max-width: none; margin-left: 0; }
 .hand-switch button { flex: 1 1 0; }
 
-html[data-hand="left"] .fab { right: auto; left: max(16px, env(safe-area-inset-left)); }
 html[data-hand="left"] .sheet-head { flex-direction: row-reverse; }
 html[data-hand="left"] .type-box button { order: -1; }
 /* 「聞く」は寄せた側の端に置く。訳の「聞く」も同じ並びにして、英文の「聞く」の真下に来るようにする */

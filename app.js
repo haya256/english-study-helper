@@ -124,6 +124,11 @@
     });
     $('#sentences-section').hidden = state.sentences.length === 0;
     $('#translate-panel').hidden = state.sentences.length === 0;
+    $('#translate-panel').open = !hasJa(); // ①と同じく、訳がついたら折りたたむ
+  }
+
+  function hasJa() {
+    return state.sentences.some((s) => s.ja && s.ja.trim());
   }
 
   function renderJa(li, s) {
@@ -601,5 +606,6 @@
       const li = cardAt(i);
       if (li) renderJa(li, state.sentences[i]);
     });
+    if (hasJa()) $('#translate-panel').open = false;
   });
 })();

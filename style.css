@@ -141,7 +141,6 @@ html[data-hand="left"] .card-head .num { grid-column: 3; justify-self: end; }
 .w.partial { color: var(--partial); background: var(--partial-bg); }
 .w.extra { color: var(--muted); text-decoration: line-through; }
 
-#translate-panel h2 { font-size: 17px; margin: 0; }
 #translate-panel .row { align-items: center; }
 .info-button {
   width: 32px; min-height: 32px; height: 32px; padding: 0;

@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026100610" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026100610">
+  <link rel="icon" href="favicon.svg?v=2026101110" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026101110">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -138,6 +138,8 @@
 
   <!-- どこまでスクロールしていても設定を開けるよう、画面の下に固定で置く -->
   <button type="button" id="btn-settings" class="fab" aria-label="設定を開く" lang="ja">⚙️</button>
+  <!-- しおりをつけた文へ順番に飛ぶ。しおりが1つもないときは隠す -->
+  <button type="button" id="btn-next-mark" class="fab fab-side" aria-label="次のしおりへ" lang="ja" hidden>🔖</button>
 
   <template id="tpl-sentence">
     <li class="card">
@@ -167,9 +169,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026100610"></script>
-  <script src="splitter.js?v=2026100610"></script>
-  <script src="compare.js?v=2026100610"></script>
-  <script src="app.js?v=2026100610"></script>
+  <script src="store.js?v=2026101110"></script>
+  <script src="splitter.js?v=2026101110"></script>
+  <script src="compare.js?v=2026101110"></script>
+  <script src="app.js?v=2026101110"></script>
 </body>
 </html>

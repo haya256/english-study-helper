@@ -35,11 +35,11 @@
       updateCount(`文が ${parts.length.toLocaleString()} 個あります。${MAX_SENTENCES.toLocaleString()} 個以下になるよう減らしてください`);
       return;
     }
-    // 同じ英文の訳とベストスコアは引き継ぐ
+    // 同じ英文の訳・ベストスコア・しおりは引き継ぐ
     const prev = new Map(state.sentences.map((s) => [s.en, s]));
     state.sentences = parts.map(({ en, para }) => {
       const p = prev.get(en);
-      return { en, para, ja: p ? p.ja : '', jaManual: p ? p.jaManual : false, best: p ? p.best : null };
+      return { en, para, ja: p ? p.ja : '', jaManual: p ? p.jaManual : false, best: p ? p.best : null, marked: p ? Boolean(p.marked) : false };
     });
     save();
     renderSentences();
@@ -102,7 +102,14 @@
       const num = document.createElement('span');
       num.className = 'num';
       num.textContent = `${i + 1}/${state.sentences.length}`;
-      head.appendChild(num);
+      // 番号の横に、後で戻ってくるためのしおりボタンを置く
+      const side = document.createElement('span');
+      side.className = 'head-side';
+      const mark = document.createElement('button');
+      mark.className = 'btn-mark';
+      mark.textContent = '🔖';
+      side.append(num, mark);
+      head.appendChild(side);
       const b = document.createElement('button');
       b.textContent = PLAY_FROM_LABEL;
       b.addEventListener('click', () => togglePlayAll(i, b));
@@ -119,13 +126,54 @@
         if (text) showResult(i, Compare.compare(s.en, text));
       });
       if (s.best != null) setScoreText(li, null, s.best);
+      setMarked(li, mark, Boolean(s.marked));
+      mark.addEventListener('click', () => {
+        s.marked = !s.marked;
+        setMarked(li, mark, s.marked);
+        save();
+        updateNextMarkButton();
+      });
       listEl.appendChild(li);
       cards.push(li);
     });
+    lastJump = -1;
+    updateNextMarkButton();
     $('#sentences-section').hidden = state.sentences.length === 0;
     $('#translate-panel').hidden = state.sentences.length === 0;
     $('#translate-panel').open = !hasJa(); // ①と同じく、訳がついたら折りたたむ
   }
+
+  // ---------- しおり ----------
+  const nextMarkEl = $('#btn-next-mark');
+  let lastJump = -1; // 最後に「次へ」で飛んだ文
+
+  function setMarked(li, button, on) {
+    li.classList.toggle('marked', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.setAttribute('aria-label', on ? 'しおりを外す' : 'しおりをつける');
+  }
+
+  function updateNextMarkButton() {
+    nextMarkEl.hidden = !state.sentences.some((s) => s.marked);
+  }
+
+  // 画面の縦の真ん中より上に上端がある最後のカードを「いま見ている文」とし、その次の印の文へ飛ぶ
+  nextMarkEl.addEventListener('click', () => {
+    const marks = state.sentences.map((s, i) => (s.marked ? i : -1)).filter((i) => i >= 0);
+    if (!marks.length) return;
+    const middle = window.innerHeight / 2;
+    let current = -1;
+    cards.forEach((li, i) => { if (li.getBoundingClientRect().top <= middle) current = i; });
+    // 最後の方のカードは真ん中まで来られないので、直前に飛んだ文が見えていればそこを今の位置とする
+    const last = cards[lastJump];
+    if (last) {
+      const r = last.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight) current = Math.max(current, lastJump);
+    }
+    const target = marks.find((i) => i > current);
+    lastJump = target === undefined ? marks[0] : target;
+    cardAt(lastJump).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 
   function hasJa() {
     return state.sentences.some((s) => s.ja && s.ja.trim());

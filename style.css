@@ -12,6 +12,7 @@
   --miss-bg: #ffe3e3;
   --partial: #9a6700;
   --partial-bg: #fff3c4;
+  --mark: #d97706;
   --rec: #d93025;
   --radius: 14px;
 }
@@ -30,6 +31,7 @@
     --miss-bg: #4a1414;
     --partial: #e3b341;
     --partial-bg: #3d2e00;
+    --mark: #f5a524;
   }
 }
 
@@ -117,6 +119,13 @@ button.recording { background: var(--rec); color: #fff; border-color: var(--rec)
 .card-head .num { grid-row: 1; grid-column: 1; justify-self: start; padding: 0 4px; color: var(--muted); font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .card-head button { grid-row: 1; grid-column: 2; padding: 6px 10px; font-size: 14px; }
 html[data-hand="left"] .card-head .num { grid-column: 3; justify-self: end; }
+/* 番号としおりボタン。左手設定では並びを逆にして、しおりが内側に来るようにする */
+.card-head .head-side { grid-row: 1; grid-column: 1; justify-self: start; display: flex; align-items: center; gap: 2px; }
+html[data-hand="left"] .card-head .head-side { grid-column: 3; justify-self: end; flex-direction: row-reverse; }
+.card-head .head-side .num { padding: 0 4px; }
+.card-head .btn-mark { padding: 4px 8px; font-size: 16px; line-height: 1; background: transparent; border-color: transparent; opacity: 0.35; }
+.card-head .btn-mark[aria-pressed="true"] { opacity: 1; background: var(--mark); border-color: var(--mark); }
+.card.marked { border-color: var(--mark); border-left: 6px solid var(--mark); }
 .card.speaking .en { color: var(--accent); }
 .ja-view { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .ja-text { margin: 0; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -182,6 +191,13 @@ a.button.primary { background: var(--accent); color: var(--accent-text); border-
   font-size: 26px;
   box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
 }
+/* しおりの「次へ」。⚙️ の横の、左右設定の側に少し小さく置く */
+.fab.fab-side {
+  left: calc(50% + 40px); right: auto; margin: 0;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  width: 48px; height: 48px; font-size: 22px;
+}
+html[data-hand="left"] .fab.fab-side { left: auto; right: calc(50% + 40px); }
 .sheet {
   position: fixed;
   inset: auto 0 0 0;

@@ -55,7 +55,14 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
 .top h1 { flex: 1; min-width: 0; }
 /* 今の文章の名前。タイトルとクリアの下に、幅いっぱいで置く */
 .top { flex-wrap: wrap; }
-.doc-row { flex: 1 0 100%; display: flex; gap: 8px; margin-bottom: 4px; }
+/* スクロールしてもタイトル・📄・↻ が見えるよう、上に貼りつける */
+.top {
+  position: sticky; top: 0; z-index: 5;
+  padding: env(safe-area-inset-top) 0 8px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.doc-row { flex: 1 0 100%; min-width: 0; display: flex; gap: 8px; margin-bottom: 4px; }
 #btn-reload { flex: none; font-size: 18px; }
 .doc-switch {
   flex: 1; min-width: 0;

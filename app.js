@@ -211,9 +211,18 @@
     pNextMark.disabled = !state.sentences.some((x) => x.marked);
   }
 
-  // パネルを除いた見える範囲の、縦の真ん中にあるカード（なければいちばん近いカード）
+  // 上のタイトルと下のパネルに隠れない範囲で文を真ん中に出せるよう、スクロールの余白を合わせる
+  const headerEl = $('.top');
+  function updateScrollPadding() {
+    document.documentElement.style.scrollPaddingTop = headerEl.offsetHeight + 'px';
+    document.documentElement.style.scrollPaddingBottom = playerEl.offsetHeight + 'px';
+  }
+  new ResizeObserver(updateScrollPadding).observe(headerEl);
+  new ResizeObserver(updateScrollPadding).observe(playerEl);
+
+  // タイトルとパネルを除いた見える範囲の、縦の真ん中にあるカード（なければいちばん近いカード）
   function centerCard() {
-    const middle = (window.innerHeight - playerEl.offsetHeight) / 2;
+    const middle = (headerEl.getBoundingClientRect().bottom + window.innerHeight - playerEl.offsetHeight) / 2;
     let best = -1;
     let bestDist = Infinity;
     cards.forEach((li, i) => {
@@ -243,8 +252,8 @@
     scrollTimer = setTimeout(() => {
       if (programmaticScroll) { programmaticScroll = false; return; }
       if (speaking || playAll || rec) return;
-      // 上の 📄（文章の切り替え）を押しに来ただけで、覚えている文が変わらないようにする
-      if ($('#btn-docs').getBoundingClientRect().bottom > 0) return;
+      // いちばん上まで戻っただけで、覚えている文が変わらないようにする
+      if (window.scrollY <= headerEl.offsetHeight) return;
       setCurrent(centerCard());
     }, 150);
   }, { passive: true });

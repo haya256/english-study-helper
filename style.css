@@ -48,6 +48,7 @@ body {
   padding: 0 max(16px, env(safe-area-inset-right)) calc(140px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 }
 .top h1 { font-size: 20px; margin: 16px 0 12px; }
+.subtitle { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); }
 main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 /* タイトルの行。「英文と訳をクリア」は左右設定に関係なく右端に置く */
 .top { max-width: 720px; margin: 0 auto; display: flex; align-items: flex-start; gap: 8px; }

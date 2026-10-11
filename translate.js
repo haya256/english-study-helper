@@ -50,7 +50,7 @@
   function capture() {
     // 他のページで書き換えられていても上書きしないよう、取り込む直前に読み直す
     const fresh = Store.load();
-    if (fresh.sentences.length !== state.sentences.length) return;
+    if (fresh.docId !== state.docId || fresh.sentences.length !== state.sentences.length) return;
     state = fresh;
     let changed = false;
     areaEl.querySelectorAll('[data-i]').forEach((el) => {

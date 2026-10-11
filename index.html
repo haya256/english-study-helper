@@ -6,14 +6,16 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026101112" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026101112">
+  <link rel="icon" href="favicon.svg?v=2026101113" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026101113">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
   <header class="top" lang="ja">
     <h1>English Study Helper（セコいVer. たぶんSafari専用）</h1>
     <button id="btn-reset-top" class="danger">英文と訳をクリア</button>
+    <!-- 今開いている文章の名前。押すと文章の一覧が出る -->
+    <button type="button" id="btn-docs" class="doc-switch" aria-haspopup="dialog">📄 <span id="doc-name"></span> ▾</button>
   </header>
 
   <main>
@@ -78,6 +80,16 @@
       </div>
       <ol id="sentences"></ol>
     </section>
+
+    <dialog id="docs-panel" class="sheet" lang="ja" aria-labelledby="docs-title">
+      <div class="sheet-head">
+        <h2 id="docs-title">文章</h2>
+        <button type="button" id="btn-docs-close">閉じる</button>
+      </div>
+      <button type="button" id="btn-new-doc" class="primary">＋ 新しい文章</button>
+      <ul id="docs-list" class="docs-list"></ul>
+      <p class="hint">文章はこの iPhone の中（ブラウザ）にだけ保存されます。</p>
+    </dialog>
 
     <dialog id="settings-panel" class="sheet" lang="ja" aria-labelledby="settings-title">
       <div class="sheet-head">
@@ -175,9 +187,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026101112"></script>
-  <script src="splitter.js?v=2026101112"></script>
-  <script src="compare.js?v=2026101112"></script>
-  <script src="app.js?v=2026101112"></script>
+  <script src="store.js?v=2026101113"></script>
+  <script src="splitter.js?v=2026101113"></script>
+  <script src="compare.js?v=2026101113"></script>
+  <script src="app.js?v=2026101113"></script>
 </body>
 </html>

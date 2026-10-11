@@ -6,7 +6,13 @@
   // ---------- 状態と保存 ----------
   let state = Store.load();
   document.documentElement.dataset.hand = state.settings.hand; // 画面が一瞬逆側に描かれないよう最初に反映する
-  function save() { clearTimeout(saveTimer); Store.save(state); }
+  let saveWarned = false;
+  function save() {
+    clearTimeout(saveTimer);
+    if (Store.save(state) || saveWarned) return;
+    saveWarned = true;
+    alert('保存できませんでした。使っていない文章を消してください');
+  }
   let saveTimer = null;
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
 
@@ -16,7 +22,6 @@
   const MAX_SENTENCES = 1000;
   const sourceEl = $('#source');
   const countEl = $('#source-count');
-  sourceEl.value = state.source;
   sourceEl.addEventListener('input', () => { state.source = sourceEl.value; updateCount(); saveSoon(); });
 
   function updateCount(message) {
@@ -26,7 +31,6 @@
       (over ? '（多すぎます。減らしてください）' : '');
     countEl.classList.toggle('over', over || Boolean(message));
   }
-  updateCount();
 
   $('#btn-split').addEventListener('click', () => {
     if (sourceEl.value.length > MAX_CHARS) { updateCount(); sourceEl.focus(); return; }
@@ -43,6 +47,7 @@
     });
     save();
     renderSentences();
+    updateDocName();
     if (state.sentences.length) {
       $('#input-panel').open = false;
       $('#translate-panel').scrollIntoView({ behavior: 'smooth' });
@@ -155,6 +160,8 @@
     current = cardAt(i) ? i : -1;
     if (cardAt(current)) cardAt(current).classList.add('current');
     updatePlayer();
+    // 次にこの文章を開いたとき、この文から始める
+    if (current >= 0 && state.pos !== current) { state.pos = current; saveSoon(); }
   }
 
   function updatePlayer() {
@@ -184,22 +191,24 @@
   // ページの最後の方の文は真ん中まで来られないので、プログラムで動かした直後はスクロールに追従しない
   let programmaticScroll = false;
   let scrollTimer = null;
-  function scrollToCard(i) {
+  function scrollToCard(i, behavior = 'smooth') {
     if (!cardAt(i)) return;
     setCurrent(i);
     programmaticScroll = true;
     // もう真ん中にあってスクロールが起きないときのために、少し待っても動かなければフラグを戻す
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => { programmaticScroll = false; }, 1000);
-    cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    cardAt(i).scrollIntoView({ behavior, block: 'center' });
   }
 
-  // 手でスクロールして止まったら、真ん中の文を今の文にする。読み上げ中・発音チェック中は変えない
+  // 手でスクロールして止まったら、真ん中の文を今の文にする。読み上げ中・発音チェック中・いちばん上にいるときは変えない
   window.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => {
       if (programmaticScroll) { programmaticScroll = false; return; }
       if (speaking || playAll || rec) return;
+      // 上の 📄（文章の切り替え）を押しに来ただけで、覚えている文が変わらないようにする
+      if ($('#btn-docs').getBoundingClientRect().bottom > 0) return;
       setCurrent(centerCard());
     }, 150);
   }, { passive: true });
@@ -617,11 +626,15 @@
   const settingsSheet = $('#settings-panel');
   $('#btn-settings').addEventListener('click', () => settingsSheet.showModal());
   $('#btn-settings-close').addEventListener('click', () => settingsSheet.close());
-  settingsSheet.addEventListener('click', (e) => {
-    if (e.target !== settingsSheet) return;
-    const r = settingsSheet.getBoundingClientRect();
-    if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) settingsSheet.close();
-  });
+  closeOnBackdrop(settingsSheet);
+
+  function closeOnBackdrop(sheet) {
+    sheet.addEventListener('click', (e) => {
+      if (e.target !== sheet) return;
+      const r = sheet.getBoundingClientRect();
+      if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) sheet.close();
+    });
+  }
 
   // 読み上げの速さと音量は英語と日本語で別々に持つ。声によって大きさが違うので音量で揃えられるようにする
   const sliders = [
@@ -703,16 +716,106 @@
   $('#btn-reset').addEventListener('click', resetAll);
   $('#btn-reset-top').addEventListener('click', clearSentences);
 
+  // ---------- 文章の保存と切り替え ----------
+  const docsSheet = $('#docs-panel');
+  const docsListEl = $('#docs-list');
+
+  function updateDocName() {
+    $('#doc-name').textContent = Store.displayName(Store.docName(state.docId), state.source);
+  }
+
+  // 今の文章を読み込んで描き直し、最後に見ていた文へ移る
+  function loadDoc() {
+    state = Store.load();
+    const pos = state.pos;
+    sourceEl.value = state.source;
+    updateCount();
+    renderSentences();
+    updateDocName();
+    $('#input-panel').open = state.sentences.length === 0;
+    if (cardAt(pos)) scrollToCard(pos, 'instant');
+    else window.scrollTo(0, 0);
+  }
+
+  function formatDate(ms) {
+    const d = new Date(ms);
+    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  }
+
+  function renderDocs() {
+    docsListEl.textContent = '';
+    Store.listDocs().forEach((d) => {
+      const li = document.createElement('li');
+      li.className = 'doc-item' + (d.current ? ' current' : '');
+      const open = document.createElement('button');
+      open.className = 'doc-open';
+      const name = document.createElement('span');
+      name.className = 'doc-title';
+      name.textContent = Store.displayName(d.name, d.source);
+      const meta = document.createElement('span');
+      meta.className = 'doc-meta';
+      meta.textContent = `${d.count} 文・${formatDate(d.updatedAt)}` + (d.current ? '・開いている文章' : '');
+      open.append(name, meta);
+      open.addEventListener('click', () => {
+        docsSheet.close();
+        if (d.current) return;
+        save();
+        Store.openDoc(d.id);
+        loadDoc();
+      });
+      const rename = document.createElement('button');
+      rename.className = 'doc-icon';
+      rename.textContent = '✎';
+      rename.setAttribute('aria-label', '名前を変える');
+      rename.addEventListener('click', () => {
+        const next = prompt('文章の名前', d.name || Store.displayName('', d.source));
+        if (next === null) return;
+        Store.renameDoc(d.id, next.trim());
+        renderDocs();
+        updateDocName();
+      });
+      const del = document.createElement('button');
+      del.className = 'doc-icon danger';
+      del.textContent = '🗑';
+      del.setAttribute('aria-label', '消す');
+      del.addEventListener('click', () => {
+        if (!confirm(`「${Store.displayName(d.name, d.source)}」を消します。よろしいですか？`)) return;
+        if (d.current) save();
+        Store.deleteDoc(d.id);
+        if (d.current) loadDoc();
+        renderDocs();
+      });
+      li.append(open, rename, del);
+      docsListEl.appendChild(li);
+    });
+  }
+
+  $('#btn-docs').addEventListener('click', () => {
+    save(); // 一覧の文の数や順番が今の状態になるよう、先に保存する
+    renderDocs();
+    docsSheet.showModal();
+  });
+  $('#btn-docs-close').addEventListener('click', () => docsSheet.close());
+  $('#btn-new-doc').addEventListener('click', () => {
+    save();
+    Store.createDoc();
+    docsSheet.close();
+    loadDoc();
+    sourceEl.focus();
+  });
+  closeOnBackdrop(docsSheet);
+
   // ---------- 起動 ----------
-  renderSentences();
-  if (state.sentences.length) $('#input-panel').open = false;
+  // スクロール位置はブラウザに任せず、文章ごとに覚えた文へ移る
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  loadDoc();
 
   // 翻訳ページへ移る前に保存し、戻ってきたら翻訳ページで入った訳を読み込む
   window.addEventListener('pagehide', save);
   window.addEventListener('pageshow', (e) => {
     if (!e.persisted) return;
     const fresh = Store.load();
-    if (fresh.sentences.length !== state.sentences.length) { state = fresh; renderSentences(); return; }
+    if (fresh.docId !== state.docId || fresh.sentences.length !== state.sentences.length) { loadDoc(); return; }
     fresh.sentences.forEach((s, i) => {
       state.sentences[i].ja = s.ja;
       state.sentences[i].jaManual = s.jaManual;

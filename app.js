@@ -86,6 +86,45 @@
     e.currentTarget.setAttribute('aria-expanded', String(!help.hidden));
   });
 
+  // ホーム画面から開くと Safari の翻訳が使えないので、訳を手で貼る方法だけを出す
+  const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+  if (standalone) {
+    $('#translate-safari').hidden = true;
+    $('#paste-ja-lead').hidden = true;
+  }
+
+  // 訳を手で貼る。貼られた訳を「。」などで区切って各文に割り当てる
+  const pasteMsgEl = $('#paste-ja-msg');
+  function pasteMessage(text, ok) {
+    pasteMsgEl.textContent = text;
+    pasteMsgEl.classList.toggle('over', !ok);
+    pasteMsgEl.classList.toggle('done', ok);
+  }
+  $('#btn-paste-ja').addEventListener('click', () => {
+    const pasteEl = $('#ja-paste');
+    const n = state.sentences.length;
+    const ja = Align.parseTranslations(pasteEl.value, state.sentences);
+    if (!ja) {
+      pasteMessage(`訳の文の数（${Align.splitJa(pasteEl.value).length} 個）が英文の数（${n} 個）と合いません`, false);
+      return;
+    }
+    let count = 0;
+    ja.forEach((text, i) => {
+      if (!text) return;
+      state.sentences[i].ja = text;
+      count++;
+      renderJa(cardAt(i), state.sentences[i]);
+    });
+    if (!count) {
+      pasteMessage('取り込める訳がありませんでした', false);
+      return;
+    }
+    save();
+    updatePlayer();
+    pasteEl.value = '';
+    pasteMessage(count === n ? `${n} 文すべてに訳を入れました` : `${n} 文のうち ${count} 文に訳を入れました`, true);
+  });
+
   // ---------- 文のカード ----------
   const listEl = $('#sentences');
   const tpl = $('#tpl-sentence');

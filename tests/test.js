@@ -2,6 +2,7 @@
 const assert = require('assert');
 const { splitSentences } = require('../splitter.js');
 const { compare } = require('../compare.js');
+const { parseTranslations } = require('../align.js');
 
 let failed = 0;
 function test(name, fn) {
@@ -73,6 +74,15 @@ test('余分な語', () => {
 });
 test('言い間違い', () => assert.strictEqual(score('I like cats.', 'I like hats'), 67));
 test('空の発話', () => assert.strictEqual(score('Hello.', ''), 0));
+
+// --- 訳の貼り付け ---
+const S = [{ en: 'A.', para: 0 }, { en: 'B.', para: 0 }, { en: 'C.', para: 1 }];
+test('改行なし', () => assert.deepStrictEqual(parseTranslations('あ。い？う！', S), ['あ。', 'い？', 'う！']));
+test('1行が1文', () => assert.deepStrictEqual(parseTranslations('あ\nい\n\nう', S), ['あ', 'い', 'う']));
+test('「。」の数で割り当てる', () => assert.deepStrictEqual(parseTranslations('あ。い？\n\n「う」と言った。', S), ['あ。', 'い？', '「う」と言った。']));
+test('段落ごと：数が合う段落だけ', () => assert.deepStrictEqual(parseTranslations('あ、い。\n\nう', S), ['', '', 'う']));
+test('段落の空行が消えても段落を合わせる', () => assert.deepStrictEqual(parseTranslations('あ。い。\nう、え、お', S.concat({ en: 'D.', para: 1 })), ['あ。', 'い。', '', '']));
+test('合わなければ null', () => assert.strictEqual(parseTranslations('あ、い、う', S), null));
 
 if (failed) { console.log(`\n${failed} 件失敗`); process.exit(1); }
 console.log('\nすべて成功');

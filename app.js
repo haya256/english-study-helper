@@ -119,7 +119,6 @@
     }
     save();
     updatePlayer();
-    pasteEl.value = '';
     pasteMessage(count === n ? `${n} 文すべてに訳を入れました` : `${n} 文のうち ${count} 文に訳を入れました`, true);
   });
 

@@ -54,8 +54,10 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
 .top h1 { flex: 1; min-width: 0; }
 /* 今の文章の名前。タイトルとクリアの下に、幅いっぱいで置く */
 .top { flex-wrap: wrap; }
+.doc-row { flex: 1 0 100%; display: flex; gap: 8px; margin-bottom: 4px; }
+#btn-reload { flex: none; font-size: 18px; }
 .doc-switch {
-  flex: 1 0 100%; min-width: 0; margin-bottom: 4px;
+  flex: 1; min-width: 0;
   display: flex; align-items: center; gap: 6px;
   text-align: left; font-weight: 600;
 }

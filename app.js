@@ -91,7 +91,9 @@
   if (standalone) {
     $('#translate-safari').hidden = true;
     $('#paste-ja-lead').hidden = true;
+    $('#btn-reload').hidden = false;
   }
+  $('#btn-reload').addEventListener('click', () => { save(); location.reload(); });
 
   // 訳を手で貼る。貼られた訳を「。」などで区切って各文に割り当てる
   const pasteMsgEl = $('#paste-ja-msg');

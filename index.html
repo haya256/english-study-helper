@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper（セコいVer. たぶんSafari専用）</title>
-  <link rel="icon" href="favicon.svg?v=2026101110" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026101110">
+  <link rel="icon" href="favicon.svg?v=2026101112" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026101112">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -108,7 +108,7 @@
       <label class="field">声（日本語）
         <select id="voice-ja"></select>
       </label>
-      <div class="field">「ここから全部読む」の読み方（1文ごとにこの順で読む）
+      <div class="field">「全部読む」の読み方（1文ごとにこの順で読む）
         <div class="play-order">
           <label>英語 <select class="play-count"></select></label>
           <span>→</span>
@@ -136,10 +136,16 @@
     </dialog>
   </main>
 
-  <!-- どこまでスクロールしていても設定を開けるよう、画面の下に固定で置く -->
-  <button type="button" id="btn-settings" class="fab" aria-label="設定を開く" lang="ja">⚙️</button>
-  <!-- しおりをつけた文へ順番に飛ぶ。しおりが1つもないときは隠す -->
-  <button type="button" id="btn-next-mark" class="fab fab-side" aria-label="次のしおりへ" lang="ja" hidden>🔖</button>
+  <!-- 音楽プレイヤーのような操作パネル。今の文を読む・前後へ動く。どこまでスクロールしていても使えるよう画面の下に固定する -->
+  <nav id="player" class="player" lang="ja" aria-label="操作パネル">
+    <button type="button" id="p-next-mark" class="p-mark" aria-label="次のしおりへ">🔖<span>次のしおり</span></button>
+    <button type="button" id="btn-settings" class="p-set" aria-label="設定を開く">⚙️<span>設定</span></button>
+    <button type="button" id="p-play-all" class="p-all" aria-label="今の文から全部読む">▶<span>全部読む</span></button>
+    <button type="button" id="p-prev" class="p-prev" aria-label="前の文へ">⏮<span>前へ</span></button>
+    <button type="button" id="p-next" class="p-next" aria-label="次の文へ">⏭<span>次へ</span></button>
+    <button type="button" id="p-en" class="p-en" aria-label="今の文を英語で読む">▶<span>英語</span></button>
+    <button type="button" id="p-ja" class="p-ja" aria-label="今の文を日本語で読む">▶<span>日本語</span></button>
+  </nav>
 
   <template id="tpl-sentence">
     <li class="card">
@@ -169,9 +175,9 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026101110"></script>
-  <script src="splitter.js?v=2026101110"></script>
-  <script src="compare.js?v=2026101110"></script>
-  <script src="app.js?v=2026101110"></script>
+  <script src="store.js?v=2026101112"></script>
+  <script src="splitter.js?v=2026101112"></script>
+  <script src="compare.js?v=2026101112"></script>
+  <script src="app.js?v=2026101112"></script>
 </body>
 </html>

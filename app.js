@@ -95,7 +95,7 @@
     listEl.textContent = '';
     cards = [];
     state.sentences.forEach((s, i) => {
-      // カードの上に「2/10」のような番号と「ここから全部読む」を置く
+      // カードの上に「2/10」のような番号を置く
       const head = document.createElement('li');
       head.className = 'card-head';
       head.lang = 'ja';
@@ -110,17 +110,14 @@
       mark.textContent = '🔖';
       side.append(num, mark);
       head.appendChild(side);
-      const b = document.createElement('button');
-      b.textContent = PLAY_FROM_LABEL;
-      b.addEventListener('click', () => togglePlayAll(i, b));
-      head.appendChild(b);
       listEl.appendChild(head);
       const li = tpl.content.firstElementChild.cloneNode(true);
       li.querySelector('.en').textContent = s.en;
       renderJa(li, s);
-      li.querySelector('.btn-speak').addEventListener('click', () => toggleSpeak(i));
-      li.querySelector('.btn-ja-speak').addEventListener('click', () => toggleSpeak(i, 'ja'));
-      li.querySelector('.btn-mic').addEventListener('click', () => toggleRecognition(i));
+      // カードのボタンを押したら、その文を今の文にする
+      li.querySelector('.btn-speak').addEventListener('click', () => { setCurrent(i); toggleSpeak(i); });
+      li.querySelector('.btn-ja-speak').addEventListener('click', () => { setCurrent(i); toggleSpeak(i, 'ja'); });
+      li.querySelector('.btn-mic').addEventListener('click', () => { setCurrent(i); toggleRecognition(i); });
       li.querySelector('.btn-type-check').addEventListener('click', () => {
         const text = li.querySelector('.type-input').value.trim();
         if (text) showResult(i, Compare.compare(s.en, text));
@@ -131,48 +128,111 @@
         s.marked = !s.marked;
         setMarked(li, mark, s.marked);
         save();
-        updateNextMarkButton();
+        setCurrent(i);
       });
       listEl.appendChild(li);
       cards.push(li);
     });
-    lastJump = -1;
-    updateNextMarkButton();
     $('#sentences-section').hidden = state.sentences.length === 0;
     $('#translate-panel').hidden = state.sentences.length === 0;
     $('#translate-panel').open = !hasJa(); // ①と同じく、訳がついたら折りたたむ
+    current = -1;
+    setCurrent(centerCard());
   }
 
-  // ---------- しおり ----------
-  const nextMarkEl = $('#btn-next-mark');
-  let lastJump = -1; // 最後に「次へ」で飛んだ文
+  // ---------- 今の文（操作パネルで読む・動く基準） ----------
+  const playerEl = $('#player');
+  const pNextMark = $('#p-next-mark');
+  const pPlayAll = $('#p-play-all');
+  const pPrev = $('#p-prev');
+  const pNext = $('#p-next');
+  const pEn = $('#p-en');
+  const pJa = $('#p-ja');
+  let current = -1;
 
+  function setCurrent(i) {
+    if (cardAt(current)) cardAt(current).classList.remove('current');
+    current = cardAt(i) ? i : -1;
+    if (cardAt(current)) cardAt(current).classList.add('current');
+    updatePlayer();
+  }
+
+  function updatePlayer() {
+    const n = state.sentences.length;
+    const s = state.sentences[current];
+    pPrev.disabled = current <= 0;
+    pNext.disabled = current < 0 || current >= n - 1;
+    pEn.disabled = !s;
+    pJa.disabled = !(s && s.ja && s.ja.trim());
+    pPlayAll.disabled = !s;
+    pNextMark.disabled = !state.sentences.some((x) => x.marked);
+  }
+
+  // パネルを除いた見える範囲の、縦の真ん中にあるカード（なければいちばん近いカード）
+  function centerCard() {
+    const middle = (window.innerHeight - playerEl.offsetHeight) / 2;
+    let best = -1;
+    let bestDist = Infinity;
+    cards.forEach((li, i) => {
+      const r = li.getBoundingClientRect();
+      const d = r.top > middle ? r.top - middle : r.bottom < middle ? middle - r.bottom : 0;
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+
+  // ページの最後の方の文は真ん中まで来られないので、プログラムで動かした直後はスクロールに追従しない
+  let programmaticScroll = false;
+  let scrollTimer = null;
+  function scrollToCard(i) {
+    if (!cardAt(i)) return;
+    setCurrent(i);
+    programmaticScroll = true;
+    // もう真ん中にあってスクロールが起きないときのために、少し待っても動かなければフラグを戻す
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => { programmaticScroll = false; }, 1000);
+    cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // 手でスクロールして止まったら、真ん中の文を今の文にする。読み上げ中・発音チェック中は変えない
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      if (programmaticScroll) { programmaticScroll = false; return; }
+      if (speaking || playAll || rec) return;
+      setCurrent(centerCard());
+    }, 150);
+  }, { passive: true });
+
+  pEn.addEventListener('click', () => toggleSpeak(current, 'en'));
+  pJa.addEventListener('click', () => toggleSpeak(current, 'ja'));
+  pPlayAll.addEventListener('click', () => togglePlayAll(current));
+
+  // 全部読むの途中なら、移った文から読み直す。1文だけ読んでいる途中なら止める
+  function moveTo(i) {
+    if (!cardAt(i)) return;
+    const wasPlayingAll = playAll;
+    stopSpeaking();
+    stopRecognition();
+    scrollToCard(i);
+    if (wasPlayingAll) togglePlayAll(i);
+  }
+  pPrev.addEventListener('click', () => moveTo(current - 1));
+  pNext.addEventListener('click', () => moveTo(current + 1));
+
+  // ---------- しおり ----------
   function setMarked(li, button, on) {
     li.classList.toggle('marked', on);
     button.setAttribute('aria-pressed', String(on));
     button.setAttribute('aria-label', on ? 'しおりを外す' : 'しおりをつける');
   }
 
-  function updateNextMarkButton() {
-    nextMarkEl.hidden = !state.sentences.some((s) => s.marked);
-  }
-
-  // 画面の縦の真ん中より上に上端がある最後のカードを「いま見ている文」とし、その次の印の文へ飛ぶ
-  nextMarkEl.addEventListener('click', () => {
+  // 今の文より後ろで最初のしおりの文へ飛ぶ。なければ最初のしおりに戻る
+  pNextMark.addEventListener('click', () => {
     const marks = state.sentences.map((s, i) => (s.marked ? i : -1)).filter((i) => i >= 0);
     if (!marks.length) return;
-    const middle = window.innerHeight / 2;
-    let current = -1;
-    cards.forEach((li, i) => { if (li.getBoundingClientRect().top <= middle) current = i; });
-    // 最後の方のカードは真ん中まで来られないので、直前に飛んだ文が見えていればそこを今の位置とする
-    const last = cards[lastJump];
-    if (last) {
-      const r = last.getBoundingClientRect();
-      if (r.bottom > 0 && r.top < window.innerHeight) current = Math.max(current, lastJump);
-    }
     const target = marks.find((i) => i > current);
-    lastJump = target === undefined ? marks[0] : target;
-    cardAt(lastJump).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    moveTo(target === undefined ? marks[0] : target);
   });
 
   function hasJa() {
@@ -241,9 +301,7 @@
   const synth = window.speechSynthesis;
   let speaking = null;
   let playAll = false;
-  let playAllButton = null; // 押された「ここから全部読む」。読んでいる間は ■ 止める にする
-  const PLAY_FROM_LABEL = '▶ ここから全部読む';
-  let gapTimer = null; // 「ここから全部読む」で次の文に進む前の間
+  let gapTimer = null; // 「全部読む」で次の文に進む前の間
   const SENTENCE_GAP_MS = 2000;
 
   function englishVoices() {
@@ -274,13 +332,20 @@
     if (!li) return;
     li.classList.toggle(sp.lang === 'en' ? 'speaking' : 'speaking-ja', on);
     li.querySelector(sp.lang === 'en' ? '.btn-speak' : '.btn-ja-speak').classList.toggle('active', on);
+    (sp.lang === 'en' ? pEn : pJa).classList.toggle('active', on);
+  }
+
+  // 全部読むの間は、パネルのボタンを ■ 止める にする
+  function setPlayAllButton(on) {
+    pPlayAll.classList.toggle('active', on);
+    pPlayAll.firstChild.textContent = on ? '■' : '▶';
+    pPlayAll.querySelector('span').textContent = on ? '止める' : '全部読む';
   }
 
   function endPlayAll() {
     playAll = false;
     clearTimeout(gapTimer);
-    if (playAllButton) playAllButton.textContent = PLAY_FROM_LABEL;
-    playAllButton = null;
+    setPlayAllButton(false);
   }
 
   function stopSpeaking() {
@@ -330,17 +395,17 @@
   }
 
   // from 番目の文から最後まで読む
-  function togglePlayAll(from, button) {
+  function togglePlayAll(from) {
     if (playAll) { stopSpeaking(); return; }
+    if (!cardAt(from)) return;
     stopRecognition();
     playAll = true;
-    playAllButton = button;
-    button.textContent = '■ 止める';
+    setPlayAllButton(true);
     // 1文ごとに「英語→日本語→英語」をそれぞれ設定の回数だけ読む。訳がない文の日本語は飛ばす
     const counts = state.settings.playAllCounts;
     if (counts.every((n) => n === 0)) {
       stopSpeaking();
-      alert('設定の「ここから全部読む」の読み方で、どれかを1回以上にしてください');
+      alert('設定の「全部読む」の読み方で、どれかを1回以上にしてください');
       return;
     }
     const queue = [];
@@ -359,7 +424,7 @@
       const { i, lang } = queue[k];
       const go = () => speak(i, () => next(k + 1), lang);
       if (k > 0 && queue[k - 1].i === i) { go(); return; }
-      cardAt(i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scrollToCard(i);
       // iOS はボタンを押した流れの中で読み始めないと音が出ないことがあるので、最初の文はすぐ読む。
       // 次の文に進むときは少し間をあける
       if (k === 0) go(); else gapTimer = setTimeout(go, SENTENCE_GAP_MS);
@@ -655,5 +720,6 @@
       if (li) renderJa(li, state.sentences[i]);
     });
     if (hasJa()) $('#translate-panel').open = false;
+    updatePlayer();
   });
 })();

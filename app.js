@@ -86,13 +86,9 @@
     e.currentTarget.setAttribute('aria-expanded', String(!help.hidden));
   });
 
-  // ホーム画面から開くと Safari の翻訳が使えないので、訳を手で貼る方法だけを出す
+  // ホーム画面から開くとブラウザの更新ボタンがないので、代わりのボタンを出す
   const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
-  if (standalone) {
-    $('#translate-safari').hidden = true;
-    $('#paste-ja-lead').hidden = true;
-    $('#btn-reload').hidden = false;
-  }
+  if (standalone) $('#btn-reload').hidden = false;
   $('#btn-reload').addEventListener('click', () => { save(); location.reload(); });
 
   // 訳を手で貼る。貼られた訳を「。」などで区切って各文に割り当てる

@@ -92,6 +92,30 @@
     return id;
   }
 
+  // 指定した文章の中身を返す。なければ null
+  function readDoc(id) {
+    const doc = read(DOC_PREFIX + id);
+    return doc && Array.isArray(doc.sentences) ? { ...emptyDoc(), ...doc } : null;
+  }
+
+  // ファイルから読み込んだ中身で新しい文章を作って開く。書けなかったら（容量がいっぱいなど）null を返す
+  function importDoc({ name, source, sentences, pos }) {
+    const idx = index();
+    const now = Date.now();
+    const id = newId();
+    if (!write(DOC_PREFIX + id, { source, sentences, pos })) {
+      try { localStorage.removeItem(DOC_PREFIX + id); } catch (e) { /* 消せなくても続ける */ }
+      return null;
+    }
+    idx.docs.push({ id, name, createdAt: now, updatedAt: now });
+    idx.currentId = id;
+    if (!write(INDEX_KEY, idx)) {
+      try { localStorage.removeItem(DOC_PREFIX + id); } catch (e) { /* 消せなくても続ける */ }
+      return null;
+    }
+    return id;
+  }
+
   function openDoc(id) {
     const idx = index();
     if (!idx.docs.some((d) => d.id === id)) return;
@@ -143,5 +167,5 @@
     } catch (e) { /* 消せなくても続ける */ }
   }
 
-  root.Store = { load, save, clear, listDocs, createDoc, openDoc, renameDoc, deleteDoc, displayName, docName };
+  root.Store = { load, save, clear, listDocs, createDoc, importDoc, readDoc, openDoc, renameDoc, deleteDoc, displayName, docName };
 })(self);

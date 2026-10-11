@@ -3,6 +3,7 @@ const assert = require('assert');
 const { splitSentences } = require('../splitter.js');
 const { compare } = require('../compare.js');
 const { parseTranslations } = require('../align.js');
+const DocFile = require('../docfile.js');
 
 let failed = 0;
 function test(name, fn) {
@@ -83,6 +84,22 @@ test('「。」の数で割り当てる', () => assert.deepStrictEqual(parseTran
 test('段落ごと：数が合う段落だけ', () => assert.deepStrictEqual(parseTranslations('あ、い。\n\nう', S), ['', '', 'う']));
 test('段落の空行が消えても段落を合わせる', () => assert.deepStrictEqual(parseTranslations('あ。い。\nう、え、お', S.concat({ en: 'D.', para: 1 })), ['あ。', 'い。', '', '']));
 test('合わなければ null', () => assert.strictEqual(parseTranslations('あ、い、う', S), null));
+
+// --- 文章のファイル ---
+const DOC = { source: 'A. B.', pos: 1, sentences: [{ en: 'A.', para: 0, ja: 'あ。', jaManual: true, best: 80, marked: true }, { en: 'B.', para: 0, ja: '', best: null, marked: false }] };
+test('書き出して読み込むと元に戻る', () => assert.deepStrictEqual(DocFile.fromText(DocFile.toText('名前', DOC)), {
+  name: '名前', source: 'A. B.', pos: 1,
+  sentences: [{ en: 'A.', para: 0, ja: 'あ。', jaManual: false, best: 80, marked: true }, { en: 'B.', para: 0, ja: '', jaManual: false, best: null, marked: false }],
+}));
+test('別のファイルは読み込まない', () => {
+  assert.throws(() => DocFile.fromText('hello'), /このアプリで保存したファイルではありません/);
+  assert.throws(() => DocFile.fromText('{"sentences":[]}'), /このアプリで保存したファイルではありません/);
+});
+test('おかしな値は直す', () => {
+  const d = DocFile.fromText(JSON.stringify({ app: 'english-study-helper', version: 1, sentences: [{ en: 'A.', best: 'x' }, { en: 1 }, null], pos: 9 }));
+  assert.deepStrictEqual(d, { name: '', source: '', pos: 0, sentences: [{ en: 'A.', para: 0, ja: '', jaManual: false, best: null, marked: false }] });
+});
+test('ファイル名', () => assert.strictEqual(DocFile.fileName('a/b: c?'), 'ab c.json'));
 
 if (failed) { console.log(`\n${failed} 件失敗`); process.exit(1); }
 console.log('\nすべて成功');

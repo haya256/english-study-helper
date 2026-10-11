@@ -809,6 +809,14 @@
         renderDocs();
         updateDocName();
       });
+      const exp = document.createElement('button');
+      exp.className = 'doc-icon';
+      exp.textContent = '📤';
+      exp.setAttribute('aria-label', 'ファイルに保存');
+      exp.addEventListener('click', () => {
+        if (d.current) save();
+        exportDoc(d.id, Store.displayName(d.name, d.source));
+      });
       const del = document.createElement('button');
       del.className = 'doc-icon danger';
       del.textContent = '🗑';
@@ -820,10 +828,59 @@
         if (d.current) loadDoc();
         renderDocs();
       });
-      li.append(open, rename, del);
+      li.append(open, rename, exp, del);
       docsListEl.appendChild(li);
     });
   }
+
+  // iPhone では共有シートから「"ファイル"に保存」や AirDrop で渡せるようにする。共有できないブラウザではダウンロードする
+  async function exportDoc(id, title) {
+    const doc = Store.readDoc(id);
+    if (!doc) return;
+    const name = DocFile.fileName(title);
+    const file = new File([DocFile.toText(Store.docName(id), doc)], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+      } catch (err) {
+        if (err.name !== 'AbortError') alert('ファイルに保存できませんでした');
+      }
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+
+  // 読み込んだ文章は、今ある文章を上書きせず新しい文章として開く
+  $('#doc-import').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    let doc;
+    try {
+      doc = DocFile.fromText(await file.text());
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
+    save();
+    const prevId = state.docId;
+    const prevEmpty = !state.source.trim() && !state.sentences.length;
+    if (!Store.importDoc(doc)) {
+      alert('保存できませんでした。使っていない文章を消してください');
+      return;
+    }
+    // 何も入っていない文章は、一覧に残っても邪魔なので消す
+    if (prevEmpty) Store.deleteDoc(prevId);
+    docsSheet.close();
+    loadDoc();
+  });
 
   $('#btn-docs').addEventListener('click', () => {
     save(); // 一覧の文の数や順番が今の状態になるよう、先に保存する

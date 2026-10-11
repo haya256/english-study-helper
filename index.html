@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper</title>
-  <link rel="icon" href="favicon.svg?v=2026101202" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026101202">
+  <link rel="icon" href="favicon.svg?v=2026101203" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026101203">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -100,9 +100,12 @@
         <h2 id="docs-title">文章</h2>
         <button type="button" id="btn-docs-close">閉じる</button>
       </div>
-      <button type="button" id="btn-new-doc" class="primary">＋ 新しい文章</button>
+      <div class="row">
+        <button type="button" id="btn-new-doc" class="primary">＋ 新しい文章</button>
+        <label class="button">ファイルから読み込む<input id="doc-import" type="file" accept=".json,application/json" hidden></label>
+      </div>
       <ul id="docs-list" class="docs-list"></ul>
-      <p class="hint">文章はこの iPhone の中（ブラウザ）にだけ保存されます。</p>
+      <p class="hint">文章はこの iPhone の中（ブラウザ）にだけ保存されます。別の端末やブラウザで使うときは、📤 でファイルに保存して、移した先の「ファイルから読み込む」で開いてください。</p>
     </dialog>
 
     <dialog id="settings-panel" class="sheet" lang="ja" aria-labelledby="settings-title">
@@ -201,10 +204,11 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026101202"></script>
-  <script src="splitter.js?v=2026101202"></script>
-  <script src="compare.js?v=2026101202"></script>
-  <script src="align.js?v=2026101202"></script>
-  <script src="app.js?v=2026101202"></script>
+  <script src="store.js?v=2026101203"></script>
+  <script src="splitter.js?v=2026101203"></script>
+  <script src="compare.js?v=2026101203"></script>
+  <script src="align.js?v=2026101203"></script>
+  <script src="docfile.js?v=2026101203"></script>
+  <script src="app.js?v=2026101203"></script>
 </body>
 </html>

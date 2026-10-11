@@ -50,10 +50,10 @@ body {
 .top h1 { font-size: 20px; margin: 16px 0 12px; }
 .subtitle { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); }
 main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
-/* タイトルの行。「英文と訳をクリア」は左右設定に関係なく右端に置く */
+/* タイトルの行 */
 .top { max-width: 720px; margin: 0 auto; display: flex; align-items: flex-start; gap: 8px; }
 .top h1 { flex: 1; min-width: 0; }
-/* 今の文章の名前。タイトルとクリアの下に、幅いっぱいで置く */
+/* 今の文章の名前。タイトルの下に、幅いっぱいで置く */
 .top { flex-wrap: wrap; }
 /* スクロールしてもタイトル・📄・↻ が見えるよう、上に貼りつける */
 .top {
@@ -70,7 +70,6 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
   text-align: left; font-weight: 600;
 }
 #doc-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#btn-reset-top { flex: none; margin-top: 14px; padding: 8px 10px; }
 
 .panel, .card {
   background: var(--surface);

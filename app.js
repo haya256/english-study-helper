@@ -740,15 +740,6 @@
     save();
   });
 
-  // 上の「英文と訳をクリア」は設定を残して、英文・訳・スコアだけ消す
-  function clearSentences() {
-    if (!confirm('入力した英文・訳・スコアを消します（設定は残ります）。よろしいですか？')) return;
-    state.source = '';
-    state.sentences = [];
-    save();
-    location.reload();
-  }
-
   // 設定の中のボタンは、設定も含めて保存したものをすべて消す
   function resetAll() {
     if (!confirm('入力した英文・訳・スコアと設定を、すべて消します。よろしいですか？')) return;
@@ -759,7 +750,6 @@
     location.reload();
   }
   $('#btn-reset').addEventListener('click', resetAll);
-  $('#btn-reset-top').addEventListener('click', clearSentences);
 
   // ---------- 文章の保存と切り替え ----------
   const docsSheet = $('#docs-panel');

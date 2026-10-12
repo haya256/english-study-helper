@@ -6,6 +6,7 @@
   // ---------- 状態と保存 ----------
   let state = Store.load();
   document.documentElement.dataset.hand = state.settings.hand; // 画面が一瞬逆側に描かれないよう最初に反映する
+  document.documentElement.dataset.player = state.settings.showPlayer ? 'on' : 'off'; // 操作パネルの出し入れも同じく最初に反映する
   let saveWarned = false;
   function save() {
     clearTimeout(saveTimer);
@@ -667,9 +668,29 @@
   }));
   applyHand();
 
-  // 設定は ⚙️ ボタンから開くシートに入れる。外側（暗いところ）を押しても閉じる
+  // 「…」を押すとメニューが出る。操作パネルを隠しているときは画面の隅の「…」、出しているときはパネルの中の「…」から開く
+  const menu = $('#menu');
+  const playerToggle = $('#btn-player-toggle');
+  function applyPlayer() {
+    playerEl.hidden = !state.settings.showPlayer;
+    $('#btn-more').hidden = state.settings.showPlayer;
+    document.documentElement.dataset.player = state.settings.showPlayer ? 'on' : 'off';
+    playerToggle.textContent = state.settings.showPlayer ? '⬇︎ 操作パネルを隠す' : '🎛 操作パネルを表示';
+    updateScrollPadding();
+  }
+  document.querySelectorAll('.menu-open').forEach((b) => b.addEventListener('click', () => menu.showModal()));
+  playerToggle.addEventListener('click', () => {
+    state.settings.showPlayer = !state.settings.showPlayer;
+    applyPlayer();
+    save();
+    menu.close();
+  });
+  closeOnBackdrop(menu);
+  applyPlayer();
+
+  // 設定はメニューから開くシートに入れる。外側（暗いところ）を押しても閉じる
   const settingsSheet = $('#settings-panel');
-  $('#btn-settings').addEventListener('click', () => settingsSheet.showModal());
+  $('#btn-settings').addEventListener('click', () => { menu.close(); settingsSheet.showModal(); });
   $('#btn-settings-close').addEventListener('click', () => settingsSheet.close());
   closeOnBackdrop(settingsSheet);
 

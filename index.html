@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light dark">
   <meta name="format-detection" content="telephone=no">
   <title>English Study Helper</title>
-  <link rel="icon" href="favicon.svg?v=2026101204" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2026101204">
+  <link rel="icon" href="favicon.svg?v=2026101206" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=2026101206">
 </head>
 <!-- 翻訳ページから戻ったときに Safari が翻訳を続けても、英文が訳されないようにする -->
 <body translate="no">
@@ -168,13 +168,22 @@
   <!-- 音楽プレイヤーのような操作パネル。今の文を読む・前後へ動く。どこまでスクロールしていても使えるよう画面の下に固定する -->
   <nav id="player" class="player" lang="ja" aria-label="操作パネル">
     <button type="button" id="p-next-mark" class="p-mark" aria-label="次のしおりへ">🔖<span>次のしおり</span></button>
-    <button type="button" id="btn-settings" class="p-set" aria-label="設定を開く">⚙️<span>設定</span></button>
+    <button type="button" id="p-menu" class="p-set menu-open" aria-haspopup="dialog" aria-label="メニュー">…<span>メニュー</span></button>
     <button type="button" id="p-play-all" class="p-all" aria-label="今の文から全部読む">▶<span>全部読む</span></button>
     <button type="button" id="p-prev" class="p-prev" aria-label="前の文へ">⏮<span>前へ</span></button>
     <button type="button" id="p-next" class="p-next" aria-label="次の文へ">⏭<span>次へ</span></button>
     <button type="button" id="p-en" class="p-en" aria-label="今の文を英語で読む">▶<span>英語</span></button>
     <button type="button" id="p-ja" class="p-ja" aria-label="今の文を日本語で読む">▶<span>日本語</span></button>
   </nav>
+
+  <!-- 操作パネルを隠しているときに出す小さなボタン。押すとメニューが出る -->
+  <button type="button" id="btn-more" class="more-btn menu-open" lang="ja" aria-haspopup="dialog" aria-label="メニュー">…</button>
+
+  <!-- 「…」から開く小さなメニュー。外側を押すと閉じる -->
+  <dialog id="menu" class="menu" lang="ja" aria-label="メニュー">
+    <button type="button" id="btn-settings">⚙️ 設定</button>
+    <button type="button" id="btn-player-toggle"></button>
+  </dialog>
 
   <template id="tpl-sentence">
     <li class="card">
@@ -204,11 +213,11 @@
     </li>
   </template>
 
-  <script src="store.js?v=2026101204"></script>
-  <script src="splitter.js?v=2026101204"></script>
-  <script src="compare.js?v=2026101204"></script>
-  <script src="align.js?v=2026101204"></script>
-  <script src="docfile.js?v=2026101204"></script>
-  <script src="app.js?v=2026101204"></script>
+  <script src="store.js?v=2026101206"></script>
+  <script src="splitter.js?v=2026101206"></script>
+  <script src="compare.js?v=2026101206"></script>
+  <script src="align.js?v=2026101206"></script>
+  <script src="docfile.js?v=2026101206"></script>
+  <script src="app.js?v=2026101206"></script>
 </body>
 </html>

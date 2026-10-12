@@ -6,7 +6,7 @@
   const OLD_KEY = 'esh:v1';
   const INDEX_KEY = 'esh:v2';
   const DOC_PREFIX = 'esh:v2:doc:';
-  const defaultSettings = { rate: 0.5, rateJa: 1.5, volume: 1, volumeJa: 1, voiceURI: '', voiceJaURI: '', translateMode: 'para', silenceSec: 5, hand: 'right', playAllCounts: [1, 0, 0] };
+  const defaultSettings = { rate: 0.5, rateJa: 1.5, volume: 1, volumeJa: 1, voiceURI: '', voiceJaURI: '', translateMode: 'para', silenceSec: 5, hand: 'right', showPlayer: false, playAllCounts: [1, 0, 0] };
   const emptyDoc = () => ({ source: '', sentences: [], pos: 0 });
 
   function read(key) {

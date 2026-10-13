@@ -37,7 +37,7 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 body {
   margin: 0;
   background: var(--bg);
@@ -61,6 +61,11 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
 .top {
   position: sticky; top: 0; z-index: 5;
   padding: env(safe-area-inset-top) 0 8px;
+}
+/* 背景と下線は画面の左右いっぱいまで広げる（青い枠などが横からはみ出して見えないように） */
+.top::before {
+  content: ""; position: absolute; z-index: -1;
+  top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%);
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }

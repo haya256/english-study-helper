@@ -49,8 +49,12 @@ body {
 }
 /* 操作パネルを隠しているときは、隅の「…」で最後のカードが隠れない分だけあける */
 html[data-player="off"] body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
-.top h1 { font-size: 20px; margin: 16px 0 12px; }
-.subtitle { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); }
+/* ヘッダーを低くするため、サブタイトルはタイトルの右に並べる（狭い画面では次の行に回る） */
+.top h1 {
+  font-size: 17px; margin: 8px 0 6px;
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px;
+}
+.subtitle { font-size: 11px; font-weight: 400; color: var(--muted); white-space: nowrap; }
 main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 /* タイトルの行 */
 .top { max-width: 720px; margin: 0 auto; display: flex; align-items: flex-start; gap: 8px; }
@@ -60,7 +64,7 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
 /* スクロールしてもタイトル・📄・↻ が見えるよう、上に貼りつける */
 .top {
   position: sticky; top: 0; z-index: 5;
-  padding: env(safe-area-inset-top) 0 8px;
+  padding: env(safe-area-inset-top) 0 6px;
 }
 /* 背景と下線は画面の左右いっぱいまで広げる（青い枠などが横からはみ出して見えないように） */
 .top::before {
@@ -69,7 +73,7 @@ main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; 
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
-.doc-row { flex: 1 0 100%; min-width: 0; display: flex; gap: 8px; margin-bottom: 4px; }
+.doc-row { flex: 1 0 100%; min-width: 0; display: flex; gap: 8px; }
 #btn-reload { flex: none; font-size: 18px; }
 .doc-switch {
   flex: 1; min-width: 0;
